@@ -284,12 +284,12 @@ def fig6():
 # ═══ Figure 0: 연구 설계 개요도 (Method 서두) ═══
 def fig0():
     from matplotlib.patches import FancyBboxPatch, FancyArrowPatch
-    fig, ax = plt.subplots(figsize=(7.0, 4.4), layout='constrained')
+    fig, ax = plt.subplots(figsize=(7.6, 4.9), layout='constrained')
     ax.set_xlim(0, 100); ax.set_ylim(0, 100); ax.axis('off')
     C_DATA, C_TOPIC, C_TREND, C_VAL = '#EAF1F7', '#EAF4EE', '#FBF0E6', '#F4F4F4'
     EDGE = '#6B7B8C'
 
-    def box(x, y, w, h, title, lines, fc, fs=6.8, tfs=7.4):
+    def box(x, y, w, h, title, lines, fc, fs=8.0, tfs=9.0):
         ax.add_patch(FancyBboxPatch((x, y), w, h, boxstyle='round,pad=0.6,rounding_size=1.2',
                                     fc=fc, ec=EDGE, lw=0.8, zorder=2))
         ax.text(x + w/2, y + h - 2.6, title, ha='center', va='top', fontsize=tfs,
@@ -302,7 +302,7 @@ def fig0():
                                      mutation_scale=9, lw=0.9, color='#555555', zorder=1))
 
     def rq(x, y, label):
-        ax.text(x, y, label, ha='center', va='center', fontsize=6.6, fontweight='bold',
+        ax.text(x, y, label, ha='center', va='center', fontsize=7.6, fontweight='bold',
                 color='#FFFFFF', zorder=4,
                 bbox=dict(boxstyle='round,pad=0.28', fc='#4878A8', ec='none'))
 
@@ -345,7 +345,7 @@ def fig0():
     arrow(48, 19.5, 54.4, 19.5)  # trend -> robustness
 
     # RQ 태그
-    rq(4.5, 65.5, 'RQ1'); rq(43.5, 65.5, 'RQ3'); rq(74.5, 65.5, 'RQ4'); rq(4.5, 31.5, 'RQ2')
+    rq(6, 67.3, 'RQ1'); rq(45, 67.3, 'RQ3'); rq(76, 67.3, 'RQ4'); rq(6, 33.3, 'RQ2')
     save(fig, 'fig0_study_design.png')
 
 if __name__ == '__main__':
