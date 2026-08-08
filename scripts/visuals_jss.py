@@ -94,38 +94,54 @@ def fig2():
     ax.tick_params(length=3)
     save(fig, 'fig2_monthly_changepoints.png')
 
-# ═══ Figure 3: 방법별 c_v 스윕 (직접 라벨 + 최적점 강조) ═══
+# ═══ Figure 3: (a) 실루엣 k-선정 + (b) 방법별 c_v 스윕 ═══
 def fig3():
+    fig = plt.figure(figsize=(7.0, 3.2))
+    ga = fig.add_axes([0.065, 0.145, 0.255, 0.76])
+    gb = fig.add_axes([0.40, 0.145, 0.40, 0.76])
+    # (a) 실루엣
+    sil = pd.read_excel(os.path.join(R, '군집_k선정_실루엣_2to30.xlsx'))
+    ga.grid(**GRID)
+    ga.plot(sil['k'], sil['silhouette'], '-', lw=1.4, color=OI['blue'],
+            marker='o', ms=2.6, mec='none', zorder=3)
+    g2 = sil[sil.k == 2].iloc[0]; g5 = sil[sil.k == 5].iloc[0]; g12 = sil[sil.k == 12].iloc[0]
+    for r, lbl, dx, dy, ha in [(g2, 'k=2 (global max)', 2, 8, 'left'),
+                               (g5, 'k=5 (macro)', 7, -3, 'left'),
+                               (g12, 'k=12 (meso)', 5, 5, 'left')]:
+        ga.plot([r.k], [r.silhouette], marker='o', ms=6, mfc='white', mec=OI['vermillion'],
+                mew=1.4, zorder=4)
+        ga.annotate(lbl, (r.k, r.silhouette), xytext=(dx, dy), textcoords='offset points',
+                    ha=ha, fontsize=7.2, color=OI['vermillion'])
+    ga.set_xlabel('Number of clusters k')
+    ga.set_ylabel('Cosine silhouette')
+    ga.set_xticks([2, 5, 12, 20, 30])
+    ga.set_title('(a) Cluster-number selection', fontsize=8.5, loc='left')
+    ga.margins(y=0.12); ga.tick_params(length=3)
+    # (b) c_v 스윕
     sw = pd.read_excel(os.path.join(R, '본비교_k스윕.xlsx'))
     order = ['TF-IDF+KMeans', 'BGE-M3+KMeans (proposed)', 'NMF (TF-IDF)', 'LDA (gensim)']
-    disp = {'TF-IDF+KMeans': 'TF-IDF + K-means',
-            'BGE-M3+KMeans (proposed)': 'BGE-M3 + K-means',
+    disp = {'TF-IDF+KMeans': 'TF-IDF + K-means', 'BGE-M3+KMeans (proposed)': 'BGE-M3 + K-means',
             'NMF (TF-IDF)': 'NMF', 'LDA (gensim)': 'LDA'}
     cols = {'TF-IDF+KMeans': OI['vermillion'], 'BGE-M3+KMeans (proposed)': OI['blue'],
             'NMF (TF-IDF)': OI['green'], 'LDA (gensim)': OI['gray']}
-    fig, ax = plt.subplots(figsize=(6.0, 3.1), layout='constrained')
-    ax.grid(**GRID)
+    gb.grid(**GRID)
     for m in order:
         g = sw[sw.method == m].sort_values('k')
-        ax.plot(g['k'], g['c_v'], '-', lw=1.4, color=cols[m], zorder=3,
-                marker='o', ms=2.6, mec='none')
+        gb.plot(g['k'], g['c_v'], '-', lw=1.4, color=cols[m], zorder=3,
+                marker='o', ms=2.4, mec='none')
         best = g.loc[g.c_v.idxmax()]
-        ax.plot([best.k], [best.c_v], marker='o', ms=6, mfc='white',
-                mec=cols[m], mew=1.4, zorder=4)
-        ax.annotate(f'{disp[m]}  ({best.c_v:.3f} at k={int(best.k)})',
-                    (30, g[g.k == 30].c_v.iloc[0]), xytext=(6, 0),
-                    textcoords='offset points', va='center', fontsize=7.8,
-                    color=cols[m])
-    ax.set_xlabel('Number of topics k')
-    ax.set_ylabel('Topic coherence $c_v$')
-    ax.set_xlim(1.5, 30.5)
-    ax.set_xticks([2, 5, 10, 15, 20, 25, 30])
-    ax.margins(y=0.08)
-    ax.tick_params(length=3)
-    # 오른쪽 직접 라벨 공간 확보
-    fig.set_size_inches(6.9, 3.1)
-    ax.set_position([0.09, 0.14, 0.62, 0.83])
-    save(fig, 'fig3_cv_sweep.png')
+        gb.plot([best.k], [best.c_v], marker='o', ms=6, mfc='white', mec=cols[m],
+                mew=1.4, zorder=4)
+        gb.annotate(f'{disp[m]}  ({best.c_v:.3f}, k={int(best.k)})',
+                    (30, g[g.k == 30].c_v.iloc[0]), xytext=(5, 0),
+                    textcoords='offset points', va='center', fontsize=7.3, color=cols[m])
+    gb.set_xlabel('Number of topics k')
+    gb.set_ylabel('Topic coherence $c_v$')
+    gb.set_xlim(1.5, 30.5)
+    gb.set_xticks([2, 5, 10, 15, 20, 25, 30])
+    gb.set_title('(b) Coherence by method', fontsize=8.5, loc='left')
+    gb.margins(y=0.08); gb.tick_params(length=3)
+    save(fig, 'fig3_model_selection.png')
 
 # ═══ Figure 4: 토픽×연도 비중 히트맵 ═══
 def fig4():
@@ -264,9 +280,77 @@ def fig6():
             axi.set_ylabel('Quarterly domain share', fontsize=7.5)
     save(fig, 'fig6_domain_trends.png')
 
+
+# ═══ Figure 0: 연구 설계 개요도 (Method 서두) ═══
+def fig0():
+    from matplotlib.patches import FancyBboxPatch, FancyArrowPatch
+    fig, ax = plt.subplots(figsize=(7.0, 4.4), layout='constrained')
+    ax.set_xlim(0, 100); ax.set_ylim(0, 100); ax.axis('off')
+    C_DATA, C_TOPIC, C_TREND, C_VAL = '#EAF1F7', '#EAF4EE', '#FBF0E6', '#F4F4F4'
+    EDGE = '#6B7B8C'
+
+    def box(x, y, w, h, title, lines, fc, fs=6.8, tfs=7.4):
+        ax.add_patch(FancyBboxPatch((x, y), w, h, boxstyle='round,pad=0.6,rounding_size=1.2',
+                                    fc=fc, ec=EDGE, lw=0.8, zorder=2))
+        ax.text(x + w/2, y + h - 2.6, title, ha='center', va='top', fontsize=tfs,
+                fontweight='bold', color='#222222', zorder=3)
+        ax.text(x + w/2, y + h - 8.2, '\n'.join(lines), ha='center', va='top',
+                fontsize=fs, color='#333333', zorder=3, linespacing=1.35)
+
+    def arrow(x1, y1, x2, y2, style='-|>'):
+        ax.add_patch(FancyArrowPatch((x1, y1), (x2, y2), arrowstyle=style,
+                                     mutation_scale=9, lw=0.9, color='#555555', zorder=1))
+
+    def rq(x, y, label):
+        ax.text(x, y, label, ha='center', va='center', fontsize=6.6, fontweight='bold',
+                color='#FFFFFF', zorder=4,
+                bbox=dict(boxstyle='round,pad=0.28', fc='#4878A8', ec='none'))
+
+    # 1행: 수집 → 코퍼스 → 감사
+    box(2, 74, 27, 24, 'Data collection',
+        ['GitHub Search API (2026-08-08)', '8-query union, stars ≥ 5',
+         'recursive year→month→week slicing', '(all slices < 1,000 results)'], C_DATA)
+    box(36, 74, 25, 24, 'Corpus',
+        ['9,947 unique repositories', '→ 9,601 analyzed (2016–2025)',
+         'name + description + topic tags'], C_DATA)
+    box(68, 74, 30, 24, 'Relevance audit',
+        ['stratified sample n = 404', 'dual-LLM classification',
+         'precision 81.7% [77.6, 85.2]', 'human rating (in progress)'], C_VAL)
+    arrow(29, 86, 35.4, 86); arrow(61, 86, 67.4, 86)
+
+    # 2행: 토픽 축 + 베이스라인
+    box(2, 40, 34, 27, 'Topic discovery (technology axis)',
+        ['BGE-M3 embeddings + K-means', 'k = 2–30 sweep → macro k=5, meso k=12',
+         'stability: 20 seeds / bootstrap (ARI)', 'LLM labels + Self-Refine (measured)'], C_TOPIC)
+    box(41, 40, 26, 27, 'Baselines',
+        ['LDA · NMF', 'TF-IDF + K-means', 'BERTopic',
+         'metrics: $c_v$, NPMI, diversity'], C_TOPIC)
+    box(72, 40, 26, 27, 'Domain axis',
+        ['11-domain keyword lexicon', '(+ General, multi-label)',
+         'dual-LLM validation (n = 300)'], C_TOPIC)
+    arrow(48.5, 73.4, 19, 67.6)   # corpus -> topic
+    arrow(48.5, 73.4, 54, 67.6)   # corpus -> baselines
+    arrow(48.5, 73.4, 85, 67.6)   # corpus -> domain
+    arrow(36.6, 53.5, 40.4, 53.5, style='<|-|>')  # topic <-> baselines 비교
+
+    # 3행: 추이 분석 → 민감도
+    box(2, 6, 46, 27, 'Trend and change-point analysis',
+        ['binomial GLM: OR/yr, 95% CI, BH-FDR', 'taxonomy: Emergent / growing / declining / stable',
+         'PELT on monthly series,', '30-configuration sensitivity grid'], C_TREND)
+    box(55, 6, 43, 27, 'Robustness',
+        ['stars ≥ {5, 10, 50} × archived incl./excl.', 'seed and subsampling stability',
+         'metric audit (diversity definition)', 'Self-Refine pre/post ablation'], C_VAL)
+    arrow(19, 39.4, 19, 33.6)    # topic -> trend
+    arrow(85, 39.4, 42, 33.8)    # domain -> trend (도메인도 동일 GLM/taxonomy)
+    arrow(48, 19.5, 54.4, 19.5)  # trend -> robustness
+
+    # RQ 태그
+    rq(4.5, 65.5, 'RQ1'); rq(43.5, 65.5, 'RQ3'); rq(74.5, 65.5, 'RQ4'); rq(4.5, 31.5, 'RQ2')
+    save(fig, 'fig0_study_design.png')
+
 if __name__ == '__main__':
     arg = sys.argv[1] if len(sys.argv) > 1 else 'all'
-    fns = {'1': fig1, '2': fig2, '3': fig3, '4': fig4, '5': fig5, '6': fig6}
+    fns = {'0': fig0, '1': fig1, '2': fig2, '3': fig3, '4': fig4, '5': fig5, '6': fig6}
     if arg == 'all':
         for f in fns.values(): f()
     else:
