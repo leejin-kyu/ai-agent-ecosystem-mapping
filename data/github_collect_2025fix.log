@@ -1,0 +1,52 @@
+topic:ai-agents stars:>=5 created:2025-01-01..2025-01-31 -> 66 (incomplete=False)
+topic:ai-agents stars:>=5 created:2025-02-01..2025-02-28 -> 67 (incomplete=False)
+topic:ai-agents stars:>=5 created:2025-03-01..2025-03-31 -> 109 (incomplete=False)
+topic:ai-agents stars:>=5 created:2025-04-01..2025-04-30 -> 125 (incomplete=False)
+topic:ai-agents stars:>=5 created:2025-05-01..2025-05-31 -> 114 (incomplete=False)
+topic:ai-agents stars:>=5 created:2025-06-01..2025-06-30 -> 160 (incomplete=False)
+topic:ai-agents stars:>=5 created:2025-07-01..2025-07-31 -> 197 (incomplete=False)
+topic:ai-agents stars:>=5 created:2025-08-01..2025-08-31 -> 214 (incomplete=False)
+topic:ai-agents stars:>=5 created:2025-09-01..2025-09-30 -> 154 (incomplete=False)
+topic:ai-agents stars:>=5 created:2025-10-01..2025-10-31 -> 269 (incomplete=False)
+topic:ai-agents stars:>=5 created:2025-11-01..2025-11-30 -> 262 (incomplete=False)
+topic:ai-agents stars:>=5 created:2025-12-01..2025-12-31 -> 414 (incomplete=False)
+== topic:ai-agents done, cumulative new-pool: 2151
+topic:agentic-ai stars:>=5 created:2025-01-01..2025-01-31 -> 58 (incomplete=False)
+topic:agentic-ai stars:>=5 created:2025-02-01..2025-02-28 -> 66 (incomplete=False)
+topic:agentic-ai stars:>=5 created:2025-03-01..2025-03-31 -> 87 (incomplete=False)
+topic:agentic-ai stars:>=5 created:2025-04-01..2025-04-30 -> 98 (incomplete=False)
+topic:agentic-ai stars:>=5 created:2025-05-01..2025-05-31 -> 139 (incomplete=False)
+topic:agentic-ai stars:>=5 created:2025-06-01..2025-06-30 -> 103 (incomplete=False)
+topic:agentic-ai stars:>=5 created:2025-07-01..2025-07-31 -> 122 (incomplete=False)
+topic:agentic-ai stars:>=5 created:2025-08-01..2025-08-31 -> 112 (incomplete=False)
+topic:agentic-ai stars:>=5 created:2025-09-01..2025-09-30 -> 93 (incomplete=False)
+topic:agentic-ai stars:>=5 created:2025-10-01..2025-10-31 -> 133 (incomplete=False)
+topic:agentic-ai stars:>=5 created:2025-11-01..2025-11-30 -> 111 (incomplete=False)
+topic:agentic-ai stars:>=5 created:2025-12-01..2025-12-31 -> 138 (incomplete=False)
+== topic:agentic-ai done, cumulative new-pool: 3171
+"ai agent" in:name,description stars:>=5 created:2025-01-01..2025-01-31 -> 295 (incomplete=False)
+"ai agent" in:name,description stars:>=5 created:2025-02-01..2025-02-28 -> 257 (incomplete=False)
+"ai agent" in:name,description stars:>=5 created:2025-03-01..2025-03-31 -> 302 (incomplete=False)
+"ai agent" in:name,description stars:>=5 created:2025-04-01..2025-04-30 -> 301 (incomplete=False)
+"ai agent" in:name,description stars:>=5 created:2025-05-01..2025-05-31 -> 338 (incomplete=False)
+"ai agent" in:name,description stars:>=5 created:2025-06-01..2025-06-30 -> 317 (incomplete=False)
+"ai agent" in:name,description stars:>=5 created:2025-07-01..2025-07-31 -> 379 (incomplete=False)
+"ai agent" in:name,description stars:>=5 created:2025-08-01..2025-08-31 -> 321 (incomplete=False)
+"ai agent" in:name,description stars:>=5 created:2025-09-01..2025-09-30 -> 305 (incomplete=False)
+"ai agent" in:name,description stars:>=5 created:2025-10-01..2025-10-31 -> 379 (incomplete=False)
+"ai agent" in:name,description stars:>=5 created:2025-11-01..2025-11-30 -> 377 (incomplete=False)
+"ai agent" in:name,description stars:>=5 created:2025-12-01..2025-12-31 -> 477 (incomplete=False)
+== "ai agent" in:name,description done, cumulative new-pool: 6410
+ALL DONE — old 6373 + newly-fetched 6410 -> merged unique 9947
+year
+2016      22
+2017      42
+2018      37
+2019      65
+2020      75
+2021      61
+2022      90
+2023     611
+2024    1684
+2025    7260
+Name: count, dtype: int64

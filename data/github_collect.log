@@ -1,0 +1,104 @@
+topic:ai-agent stars:>=5 created:2016-01-01..2016-12-31 -> total 1
+topic:ai-agent stars:>=5 created:2017-01-01..2017-12-31 -> total 6
+topic:ai-agent stars:>=5 created:2018-01-01..2018-12-31 -> total 2
+topic:ai-agent stars:>=5 created:2019-01-01..2019-12-31 -> total 6
+topic:ai-agent stars:>=5 created:2020-01-01..2020-12-31 -> total 9
+topic:ai-agent stars:>=5 created:2021-01-01..2021-12-31 -> total 7
+topic:ai-agent stars:>=5 created:2022-01-01..2022-12-31 -> total 11
+topic:ai-agent stars:>=5 created:2023-01-01..2023-12-31 -> total 52
+topic:ai-agent stars:>=5 created:2024-01-01..2024-12-31 -> total 125
+topic:ai-agent stars:>=5 created:2025-01-01..2025-12-31 -> total 641
+== query done: topic:ai-agent | cumulative unique repos: 860
+topic:ai-agents stars:>=5 created:2016-01-01..2016-12-31 -> total 6
+topic:ai-agents stars:>=5 created:2017-01-01..2017-12-31 -> total 10
+topic:ai-agents stars:>=5 created:2018-01-01..2018-12-31 -> total 10
+topic:ai-agents stars:>=5 created:2019-01-01..2019-12-31 -> total 14
+topic:ai-agents stars:>=5 created:2020-01-01..2020-12-31 -> total 17
+topic:ai-agents stars:>=5 created:2021-01-01..2021-12-31 -> total 23
+topic:ai-agents stars:>=5 created:2022-01-01..2022-12-31 -> total 34
+topic:ai-agents stars:>=5 created:2023-01-01..2023-12-31 -> total 118
+topic:ai-agents stars:>=5 created:2024-01-01..2024-12-31 -> total 330
+topic:ai-agents stars:>=5 created:2025-01-01..2025-12-31 -> total 2151
+  WARN: >1000, truncated to top-star 1000
+== query done: topic:ai-agents | cumulative unique repos: 2340
+topic:llm-agent stars:>=5 created:2016-01-01..2016-12-31 -> total 0
+topic:llm-agent stars:>=5 created:2017-01-01..2017-12-31 -> total 0
+topic:llm-agent stars:>=5 created:2018-01-01..2018-12-31 -> total 1
+topic:llm-agent stars:>=5 created:2019-01-01..2019-12-31 -> total 0
+topic:llm-agent stars:>=5 created:2020-01-01..2020-12-31 -> total 2
+topic:llm-agent stars:>=5 created:2021-01-01..2021-12-31 -> total 1
+topic:llm-agent stars:>=5 created:2022-01-01..2022-12-31 -> total 2
+topic:llm-agent stars:>=5 created:2023-01-01..2023-12-31 -> total 52
+topic:llm-agent stars:>=5 created:2024-01-01..2024-12-31 -> total 109
+topic:llm-agent stars:>=5 created:2025-01-01..2025-12-31 -> total 124
+== query done: topic:llm-agent | cumulative unique repos: 2579
+topic:llm-agents stars:>=5 created:2016-01-01..2016-12-31 -> total 0
+topic:llm-agents stars:>=5 created:2017-01-01..2017-12-31 -> total 0
+topic:llm-agents stars:>=5 created:2018-01-01..2018-12-31 -> total 1
+topic:llm-agents stars:>=5 created:2019-01-01..2019-12-31 -> total 0
+topic:llm-agents stars:>=5 created:2020-01-01..2020-12-31 -> total 1
+topic:llm-agents stars:>=5 created:2021-01-01..2021-12-31 -> total 1
+topic:llm-agents stars:>=5 created:2022-01-01..2022-12-31 -> total 0
+topic:llm-agents stars:>=5 created:2023-01-01..2023-12-31 -> total 14
+topic:llm-agents stars:>=5 created:2024-01-01..2024-12-31 -> total 52
+topic:llm-agents stars:>=5 created:2025-01-01..2025-12-31 -> total 111
+== query done: topic:llm-agents | cumulative unique repos: 2714
+topic:autonomous-agents stars:>=5 created:2016-01-01..2016-12-31 -> total 0
+topic:autonomous-agents stars:>=5 created:2017-01-01..2017-12-31 -> total 4
+topic:autonomous-agents stars:>=5 created:2018-01-01..2018-12-31 -> total 2
+topic:autonomous-agents stars:>=5 created:2019-01-01..2019-12-31 -> total 7
+topic:autonomous-agents stars:>=5 created:2020-01-01..2020-12-31 -> total 6
+topic:autonomous-agents stars:>=5 created:2021-01-01..2021-12-31 -> total 6
+topic:autonomous-agents stars:>=5 created:2022-01-01..2022-12-31 -> total 1
+topic:autonomous-agents stars:>=5 created:2023-01-01..2023-12-31 -> total 56
+topic:autonomous-agents stars:>=5 created:2024-01-01..2024-12-31 -> total 50
+topic:autonomous-agents stars:>=5 created:2025-01-01..2025-12-31 -> total 153
+== query done: topic:autonomous-agents | cumulative unique repos: 2924
+topic:agentic-ai stars:>=5 created:2016-01-01..2016-12-31 -> total 1
+topic:agentic-ai stars:>=5 created:2017-01-01..2017-12-31 -> total 7
+topic:agentic-ai stars:>=5 created:2018-01-01..2018-12-31 -> total 8
+topic:agentic-ai stars:>=5 created:2019-01-01..2019-12-31 -> total 7
+topic:agentic-ai stars:>=5 created:2020-01-01..2020-12-31 -> total 7
+topic:agentic-ai stars:>=5 created:2021-01-01..2021-12-31 -> total 5
+topic:agentic-ai stars:>=5 created:2022-01-01..2022-12-31 -> total 15
+topic:agentic-ai stars:>=5 created:2023-01-01..2023-12-31 -> total 46
+topic:agentic-ai stars:>=5 created:2024-01-01..2024-12-31 -> total 146
+topic:agentic-ai stars:>=5 created:2025-01-01..2025-12-31 -> total 1260
+  WARN: >1000, truncated to top-star 1000
+== query done: topic:agentic-ai | cumulative unique repos: 3898
+"ai agent" in:name,description stars:>=5 created:2016-01-01..2016-12-31 -> total 16
+"ai agent" in:name,description stars:>=5 created:2017-01-01..2017-12-31 -> total 23
+"ai agent" in:name,description stars:>=5 created:2018-01-01..2018-12-31 -> total 16
+"ai agent" in:name,description stars:>=5 created:2019-01-01..2019-12-31 -> total 36
+"ai agent" in:name,description stars:>=5 created:2020-01-01..2020-12-31 -> total 43
+"ai agent" in:name,description stars:>=5 created:2021-01-01..2021-12-31 -> total 29
+"ai agent" in:name,description stars:>=5 created:2022-01-01..2022-12-31 -> total 48
+"ai agent" in:name,description stars:>=5 created:2023-01-01..2023-12-31 -> total 283
+"ai agent" in:name,description stars:>=5 created:2024-01-01..2024-12-31 -> total 973
+"ai agent" in:name,description stars:>=5 created:2025-01-01..2025-12-31 -> total 4048
+  WARN: >1000, truncated to top-star 1000
+== query done: "ai agent" in:name,description | cumulative unique repos: 5730
+"llm agent" in:name,description stars:>=5 created:2016-01-01..2016-12-31 -> total 1
+"llm agent" in:name,description stars:>=5 created:2017-01-01..2017-12-31 -> total 1
+"llm agent" in:name,description stars:>=5 created:2018-01-01..2018-12-31 -> total 0
+"llm agent" in:name,description stars:>=5 created:2019-01-01..2019-12-31 -> total 4
+"llm agent" in:name,description stars:>=5 created:2020-01-01..2020-12-31 -> total 0
+"llm agent" in:name,description stars:>=5 created:2021-01-01..2021-12-31 -> total 0
+"llm agent" in:name,description stars:>=5 created:2022-01-01..2022-12-31 -> total 1
+"llm agent" in:name,description stars:>=5 created:2023-01-01..2023-12-31 -> total 99
+"llm agent" in:name,description stars:>=5 created:2024-01-01..2024-12-31 -> total 230
+"llm agent" in:name,description stars:>=5 created:2025-01-01..2025-12-31 -> total 414
+== query done: "llm agent" in:name,description | cumulative unique repos: 6373
+ALL DONE — unique repos: 6373
+year
+2016      22
+2017      42
+2018      37
+2019      65
+2020      75
+2021      61
+2022      90
+2023     611
+2024    1684
+2025    3686
+Name: count, dtype: int64
