@@ -1,0 +1,49 @@
+# -*- coding: utf-8 -*-
+"""R5 용어 표준화: 선행연구 27편 DF 기준(≥3편)으로 비표준 용어를 통용 용어로 치환. 사용: python apply_term_standardization.py <in.tex> <out.tex>
+치환표(순서 중요)는 REPL. 결과 보고용 표는 term_report_xlsx.py가 생성."""
+import re, sys
+src = open(sys.argv[1], encoding='utf-8').read()
+REPL = [
+ # 제목
+ (r'Mapping AI-Agent Repositories on GitHub: Semantic Segments, Emergence, and Creation-Time Composition \(2016--2025\)', 'Mapping AI-Agent Repositories on GitHub: Clusters, Emergence, and Composition Trends (2016--2025)'),
+ # segment → cluster
+ (r'\bsemantic repository segments\b', 'repository clusters'), (r'\bsemantic repository segment\b', 'repository cluster'),
+ (r'\bSemantic repository segments\b', 'Repository clusters'),
+ (r'\bSemantic Segmentation and Labeling\b', 'Semantic Clustering and Labeling'), (r'\bsemantic segments\b', 'repository clusters'), (r'\bSemantic segments\b', 'Repository clusters'),
+ (r'\bsegmentation\b', 'clustering'), (r'\bSegmentation\b', 'Clustering'),
+ (r'(?<!minimum )(?<!Minimum )\bsegments\b(?! sizes?)', 'clusters'), (r'(?<!minimum )(?<!Minimum )\bsegment\b(?! sizes?)', 'cluster'),
+ (r'\bSegments\b', 'Clusters'), (r'\bSegment\b', 'Cluster'),
+ # granularity
+ (r'\bmacro-level\b', 'coarse-level'), (r'\bmacro\b', 'coarse'), (r'\bMacro\b', 'Coarse'), (r'\bexploratory meso\b', 'exploratory fine-grained'), (r'\bmeso\b', 'fine-grained'), (r'\bMeso\b', 'Fine-grained'),
+ # composition over time
+ (r'Creation-Time Composition', 'Composition Trends'), (r'\bcreation-time composition\b', 'composition over time'), (r'\bcreation-time repository share\b', 'proportion of repositories by creation year'), (r'\bcreation-time share\b', 'proportion'), (r'\bcreation-time\b', 'creation-year'),
+ (r'\brepository share\b', 'proportion of repositories'),
+ # change point
+ (r'\bregime change\b', 'change point'), (r'\bregime boundaries\b', 'change points'), (r'\bregime boundary\b', 'change point'), (r'\bchanges regime\b', 'has a change point'), (r'\bregime\b', 'change point'),
+ # coinciding events
+ (r'Temporal Correlates, Not Causes', 'Coinciding Events, Not Causes'), (r'\btemporal correlates\b', 'coinciding events'), (r'\btemporal correlate\b', 'coinciding event'), (r'\btemporal alignments\b', 'coincidences in time'), (r'\btemporal alignment\b', 'coincidence in time'), (r'as correlates only', 'as coinciding events only'), (r'reported as a coinciding event, not a cause', 'coincides with several events but is not attributed to a cause'),
+ # false positives
+ (r'Relevance Robustness', 'Robustness to False Positives'), (r'\bcorpus impurity\b', 'false positives in the corpus'), (r'measurements of its impurity', 'measurements of its false-positive rate'), (r'measurements of impurity', 'measurements of the false-positive rate'), (r'\bthat impurity\b', 'that false-positive rate'), (r'\bthe measured impurity\b', 'the measured false-positive rate'), (r'\bthe audited impurity\b', 'the audited false-positive rate'), (r'\bcorpus-relevance scenarios\b', 'false-positive scenarios'), (r'\brelevance scenarios\b', 'false-positive scenarios'), (r'\bimpurity\b', 'false-positive rate'),
+ # specification
+ (r'Functional-form sensitivity', 'Specification sensitivity'), (r'\bfunctional-form\b', 'specification'), (r'\bfunctional form\b', 'model specification'), (r'\bform-robust\b', 'specification-robust'), (r'\bfive functional forms\b', 'five model specifications'), (r'\bfunctional forms\b', 'model specifications'),
+ # collection
+ (r'\brecursive date slicing\b', 'recursive partitioning by creation date'), (r'\btruncation-free\b', 'without truncation'),
+ # keyword-based
+ (r'Lexicon-Defined', 'Keyword-Based'), (r'\blexicon-defined\b', 'keyword-based'), (r'\blexicon-tagged\b', 'keyword-tagged'), (r'\bkeyword lexicon\b', 'keyword list'), (r'\blexicon\b', 'keyword list'), (r'\bLexicon\b', 'Keyword list'),
+ # annotators
+ (r'\binter-rater reliability\b', 'inter-annotator agreement'), (r'\bhuman raters\b', 'human annotators'), (r'\bRaters\b', 'Annotators'), (r'\braters\b', 'annotators'), (r'\bRater\b', 'Annotator'), (r'\brater\b', 'annotator'), (r'\bsingle-annotator\b', 'single-annotator'),
+ # misc
+ (r'\bcorpus-scale\b', 'large-scale'), (r'\bdormant\b', 'inactive'), (r'\btooling\b', 'tools'),
+ (r'\bcoding-focused agents\b', 'code-generation agents'), (r'\bCoding agents\b', 'Code-generation agents'), (r'\bcoding agents\b', 'code-generation agents'), (r'\bcoding agent\b', 'code-generation agent'), (r'\bcoding-agent\b', 'code-generation-agent'), (r'\bMCP and coding clusters\b', 'MCP and code-generation clusters'), (r'\bcoding clusters\b', 'code-generation clusters'), (r'\bcoding trends\b', 'code-generation trends'),
+ (r'\bMCP infrastructure\b', 'MCP servers and tools'), (r'MCP servers and tools \(servers, clients, tools\)', 'MCP servers, clients, and tools'),
+ (r'Creation cohorts at the August 2026 snapshot', 'Repositories by creation year at the August 2026 collection'), (r'\bCohort activity and survivorship\b', 'Activity by creation year and survivorship'), (r'\bCohort & \$n\$', 'Year & $n$'), (r'\bcohorts\b', 'creation-year groups'), (r'\bcohort\b', 'creation-year group'), (r'\bcohort-level\b', 'creation-year'),
+ (r'\bsurvivor set\b', 'set of surviving repositories'), (r'\bpresent-day metadata\b', 'metadata at collection time'),
+ (r'single collection snapshot', 'single collection'), (r'single 2026 snapshot', 'single collection in 2026'), (r'at the snapshot', 'at collection time'), (r'before the snapshot', 'before collection'), (r'August 2026 snapshot', 'August 2026 collection'), (r'multi-snapshot designs', 'designs with repeated collections'), (r'historical snapshots', 'historical data'), (r'\bsnapshot\b', 'collection time'),
+]
+out = src; log = []
+for pat, rep in REPL:
+    n = len(re.findall(pat, out)); out = re.sub(pat, rep, out); log.append((pat, rep, n))
+open(sys.argv[2], 'w', encoding='utf-8').write(out)
+for pat, rep, n in log:
+    if n: print(f'{n:3d}  {pat}  ->  {rep}')
+print('control chars:', sum(1 for c in out if ord(c) < 32 and c not in '\n'))

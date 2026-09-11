@@ -1,9 +1,9 @@
-# Replication Package — Mapping the Open-Source AI-Agent Ecosystem on GitHub (2016–2025)
+# Replication Package — Mapping AI-Agent Repositories on GitHub: Clusters, Emergence, and Composition Trends (2016–2025)
 
 Replication package for the manuscript:
 
-> **Mapping the Open-Source AI-Agent Ecosystem on GitHub: Topic Structure, Emergence, and Evolution (2016–2025)**
-> Jinkyu Lee, Chang Soo Sung, Joo Yeon Park. Submitted to the *Journal of Systems and Software*.
+> **Mapping AI-Agent Repositories on GitHub: Clusters, Emergence, and Composition Trends (2016–2025)**
+> Jinkyu Lee, Chang Soo Sung, Joo Yeon Park. Submitted to *IEEE Access* (2026).
 
 The study analyzes 9,601 public GitHub repositories related to AI agents (stars ≥ 5, created 2016–2025), collected with a truncation-free procedure, clustered with BGE-M3 embeddings + K-means at two granularities, compared against LDA/NMF/TF-IDF+K-means/BERTopic, and analyzed with binomial GLM trend models (BH-FDR), an emergence taxonomy, and PELT change-point detection with a 30-configuration sensitivity grid.
 
@@ -25,6 +25,20 @@ The study analyzes 9,601 public GitHub repositories related to AI agents (stars 
 | `figures/` | Figures 1–6 (300 dpi) |
 
 Note: the 38 MB embedding cache (`embeddings.npy`) is excluded; it is regenerated deterministically by `analysis_github_v2.py` from the raw data via bge-m3.
+
+## Revision materials (2026-09-08 to 2026-09-10)
+
+| Path | Description |
+|---|---|
+| `scripts/analysis_r1_revision.py` | Stability-based model selection (silhouette + seed/bootstrap ARI for k=2–30), model-specification sensitivity of trends (spline, segmented, 2023–2025 window, quarterly), activity by creation year, audit precision by stratum, representative repositories → `results/R1_revision/A–E*.xlsx` |
+| `scripts/analysis_r2_precision_robustness.py` | Robustness to false positives: precision-weighted GLM, conservative corpus (n=8,256), Monte-Carlo worst case (200 draws) → `results/R1_revision/F_precision_robustness.xlsx` |
+| `scripts/analysis_r8_strict_rater_B.py` | Same, weighted by the strictest human annotator's cluster-level precision → `results/R1_revision/F3_precision_robustness_strict_raterB.xlsx` |
+| `audit/설문지_*_작성.xlsx`, `audit/score_three_annotators.py`, `audit/인간평가_3인_결과_260910.txt` | Blind human annotation by three annotators (A = author; B, C = external volunteers, anonymized) of a stratified 120-repository subsample and of the 17 cluster labels; scoring (precision, Cohen's κ, Krippendorff's α, majority vote) |
+| `audit/make_*_survey.py`, `audit/설문지_한글번역.json` | Annotation kit generators (Korean-language sheets) |
+| `scripts/term_*.py`, `scripts/apply_term*.py` | Terminology audit against 27 prior-work full texts (document-frequency rule ≥3) used to standardize the manuscript vocabulary |
+| `scripts/visuals_jss_r1.py`, `scripts/visuals_jss_r5.py`, `figures/R1/`, `figures/R5/` | Regenerated Figures 1–6 with cluster wording |
+
+Terminology note: the manuscript calls the K-means units *repository clusters* (earlier drafts used *segments* or *topics*); result file names retain the original `토픽`/`segment` wording.
 
 ## Environment
 
