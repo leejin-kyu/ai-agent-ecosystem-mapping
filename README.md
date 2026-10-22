@@ -4,7 +4,7 @@ Replication package for the manuscript:
 
 > **Mapping public AI-agent repositories on GitHub: clusters and creation-year composition**
 > Jinkyu Lee, Chang Soo Sung, Joo Yeon Park. Manuscript submitted for publication (2026).
-> Archived copy: Zenodo (each GitHub release of this repository is archived with its own DOI; see the Zenodo badge/release notes).
+> Archived copy: Zenodo, DOI [10.5281/zenodo.23555409](https://doi.org/10.5281/zenodo.23555409) (release v1.1-peerj; all versions: [10.5281/zenodo.23555408](https://doi.org/10.5281/zenodo.23555408)).
 
 Earlier drafts of the manuscript used the title *Mapping AI-Agent Repositories on GitHub: Clusters, Emergence, and Composition Trends (2016–2025)*.
 
