@@ -9,7 +9,11 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 BASE = os.path.dirname(os.path.abspath(__file__))
-R = os.path.join(BASE, '결과물_github_v2')
+REPO = os.path.dirname(BASE)
+if os.path.isdir(os.path.join(REPO, 'results')):   # replication repository layout (data/, results/)
+    R = os.path.join(REPO, 'results'); RAW = os.path.join(REPO, 'data', 'github_ai_agent_raw_v2.xlsx')
+else:                                              # original working layout
+    R = os.path.join(BASE, '결과물_github_v2'); RAW = os.path.join(BASE, '데이터', 'github_ai_agent_raw_v2.xlsx')
 plt.rcParams['font.family'] = 'Malgun Gothic'
 plt.rcParams['axes.unicode_minus'] = False
 def log(m): print(m, flush=True)
@@ -29,7 +33,7 @@ DOM = {
 }
 DOM_NAMES = list(DOM.keys())
 
-df = pd.read_excel(os.path.join(BASE, '데이터', 'github_ai_agent_raw_v2.xlsx'))
+df = pd.read_excel(RAW)
 df['created_dt'] = pd.to_datetime(df['created_at']).dt.tz_localize(None)
 df['year'] = df['created_dt'].dt.year
 df = df[(df['year'] >= 2016) & (df['year'] <= 2025)].reset_index(drop=True)

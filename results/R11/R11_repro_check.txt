@@ -1,0 +1,16 @@
+R11 reproduction check (2026-10-15): fresh copy of the replication repository (no .git), + results/embeddings.npy, emb_keys.npy
+scripts run in order: audit/score_three_annotators.py, scripts/analysis_r1_revision.py, scripts/analysis_r2_precision_robustness.py, scripts/analysis_r8_strict_rater_B.py, scripts/r11_reanalysis.py
+exit codes: 0 0 0 0 0
+MATCH  results/R1_revision/B_glm_functional_form_sensitivity.xlsx
+MATCH  results/R1_revision/C_cohort_activity_survivorship.xlsx
+MATCH  results/R1_revision/C_cluster_activity.xlsx
+MATCH  results/R1_revision/C_glm_active24m_sensitivity.xlsx
+MATCH  results/R1_revision/D_audit_precision_by_stratum.xlsx
+MATCH  results/R1_revision/E_representative_repos.xlsx
+MATCH  results/R1_revision/F_precision_robustness.xlsx
+MATCH  results/R1_revision/F3_precision_robustness_strict_raterB.xlsx
+DIFF   results/R11/R11_reanalysis.xlsx (vs authors' run)  -> P6_stability.seed_ARI_median: max abs diff 0.000767
+MATCH  audit/score_three_annotators.py printed statistics: precision 0.917=True, precision 0.700=True, precision 0.808=True, binary 0.285=True, majority(>=2 of 3) precision 0.792=True
+RESULT: differences found (see DIFF lines)
+NOTE: the single DIFF is P6_stability row "BGE-M3 + K-means, k=5", seed_ARI_median 0.9717 (fresh copy) vs 0.9725 (authors' run); all other cells of all 6 sheets are identical. The difference arises from multithreaded K-means on dense float32 embeddings (floating-point summation order); the manuscript reports this value as 0.97, which is unchanged.
+CONCLUSION: every table value reported in the manuscript is reproduced at its reported precision from the released files.

@@ -11,7 +11,8 @@ from openpyxl import Workbook
 from openpyxl.styles import Alignment, Font, PatternFill
 from openpyxl.worksheet.datavalidation import DataValidation
 random.seed(2026)
-HERE = os.path.dirname(os.path.abspath(__file__)); RES = os.path.join(os.path.dirname(HERE), '30_분석결과')
+HERE = os.path.dirname(os.path.abspath(__file__))
+RES = os.path.join(os.path.dirname(HERE), 'results') if os.path.isdir(os.path.join(os.path.dirname(HERE), 'results')) else os.path.join(os.path.dirname(HERE), '30_분석결과')
 PER_CLUSTER = 24
 
 # ── 1. 리포지토리 120건: 404 감사표본에서 세그먼트별 24건 층화 ──

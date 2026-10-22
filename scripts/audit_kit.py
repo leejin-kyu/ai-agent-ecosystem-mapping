@@ -6,8 +6,11 @@ import pandas as pd
 import urllib.request
 
 BASE = os.path.dirname(os.path.abspath(__file__))
-R = os.path.join(BASE, '결과물_github_v2')
-AUD = os.path.join(BASE, '감사_audit')
+REPO = os.path.dirname(BASE)
+if os.path.isdir(os.path.join(REPO, 'results')):   # replication repository layout (data/, results/, audit/)
+    R = os.path.join(REPO, 'results'); AUD = os.path.join(REPO, 'audit'); RAW = os.path.join(REPO, 'data', 'github_ai_agent_raw_v2.xlsx')
+else:                                              # original working layout
+    R = os.path.join(BASE, '결과물_github_v2'); AUD = os.path.join(BASE, '감사_audit'); RAW = os.path.join(BASE, '데이터', 'github_ai_agent_raw_v2.xlsx')
 os.makedirs(AUD, exist_ok=True)
 CATS = ['Agent-framework', 'Agent-application', 'MCP-server', 'Tutorial-example',
         'Awesome-resource', 'Paper-code', 'Non-agent', 'Other']
@@ -16,7 +19,7 @@ AGENT_CATS = {'Agent-framework', 'Agent-application', 'MCP-server'}
 def log(m): print(m, flush=True)
 
 alloc = pd.read_excel(os.path.join(R, '문서_군집할당.xlsx'))
-raw = pd.read_excel(os.path.join(BASE, '데이터', 'github_ai_agent_raw_v2.xlsx'))
+raw = pd.read_excel(RAW)
 df = alloc.merge(raw[['full_name', 'description', 'topics']], on='full_name', how='left')
 df['bucket'] = pd.cut(df['year'], bins=[2015, 2022, 2023, 2024, 2025], labels=['16-22', '23', '24', '25'])
 

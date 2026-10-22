@@ -14,8 +14,11 @@ import os, sys, json, warnings
 import numpy as np, pandas as pd
 warnings.filterwarnings('ignore')
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-RES = os.path.join(ROOT, '30_분석결과'); OUT = os.path.join(RES, 'R1_revision'); os.makedirs(OUT, exist_ok=True)
-DATA = os.path.join(ROOT, '10_데이터수집'); AUD = os.path.join(ROOT, '40_감사_인간평가키트')
+if os.path.isdir(os.path.join(ROOT, 'results')):   # replication repository layout (data/, results/, audit/)
+    RES, DATA, AUD = os.path.join(ROOT, 'results'), os.path.join(ROOT, 'data'), os.path.join(ROOT, 'audit')
+else:                                              # authors' working-folder layout
+    RES, DATA, AUD = os.path.join(ROOT, '30_분석결과'), os.path.join(ROOT, '10_데이터수집'), os.path.join(ROOT, '40_감사_인간평가키트')
+OUT = os.path.join(RES, 'R1_revision'); os.makedirs(OUT, exist_ok=True)
 SNAPSHOT = pd.Timestamp('2026-08-08', tz='UTC')
 def log(m): print(m, flush=True)
 

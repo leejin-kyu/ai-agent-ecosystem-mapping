@@ -1,0 +1,12 @@
+{
+  "title": "Replication package: Mapping public AI-agent repositories on GitHub: clusters and creation-year composition",
+  "upload_type": "software",
+  "description": "Data, analysis scripts, human-annotation materials, BGE-M3 embedding matrix, and derived tables for the manuscript \"Mapping public AI-agent repositories on GitHub: clusters and creation-year composition\" (submitted to PeerJ Computer Science). See README.md for the CPU-only reproduction steps.",
+  "creators": [
+    {"name": "Lee, Jinkyu", "affiliation": "HappyAI", "orcid": "0000-0002-0886-1572"},
+    {"name": "Sung, Chang Soo", "affiliation": "Dongguk University", "orcid": "0000-0001-9284-817X"},
+    {"name": "Park, Joo Yeon", "affiliation": "Murdoch University", "orcid": "0000-0002-5231-5405"}
+  ],
+  "keywords": ["AI agents", "GitHub", "mining software repositories", "clustering", "LLM-assisted annotation"],
+  "access_right": "open"
+}

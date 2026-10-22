@@ -10,8 +10,12 @@ import matplotlib.pyplot as plt
 from matplotlib import ticker
 
 BASE = os.path.dirname(os.path.abspath(__file__))
-R = os.path.join(os.path.dirname(BASE), '30_분석결과')
-OUT = os.path.join(R, '논문그림_fig0-6', 'R5')
+if os.path.isdir(os.path.join(os.path.dirname(BASE), 'results')):   # replication repository layout
+    R = os.path.join(os.path.dirname(BASE), 'results'); RAW = os.path.join(os.path.dirname(BASE), 'data', 'github_ai_agent_raw_v2.xlsx')
+    OUT = os.path.join(os.path.dirname(BASE), 'figures', 'R5')
+else:                                                              # authors' working-folder layout
+    R = os.path.join(os.path.dirname(BASE), '30_분석결과'); RAW = os.path.join(os.path.dirname(BASE), '10_데이터수집', 'github_ai_agent_raw_v2.xlsx')
+    OUT = os.path.join(R, '논문그림_fig0-6', 'R5')
 os.makedirs(OUT, exist_ok=True)
 
 # ── 공통 스타일 ──
@@ -38,7 +42,7 @@ def save(fig, name):
 
 def load_alloc():
     alloc = pd.read_excel(os.path.join(R, '문서_군집할당.xlsx'))
-    raw = pd.read_excel(os.path.join(os.path.dirname(BASE), '10_데이터수집', 'github_ai_agent_raw_v2.xlsx'))
+    raw = pd.read_excel(RAW)
     raw['created_dt'] = pd.to_datetime(raw['created_at']).dt.tz_localize(None)
     return alloc.merge(raw[['full_name', 'created_dt']], on='full_name')
 
@@ -220,7 +224,7 @@ def fig6():
     dom = pd.read_excel(os.path.join(R, '도메인_GLM_taxonomy.xlsx'))
     dom = dom[dom.domain != 'General'].sort_values('OR_per_year')
     tag = pd.read_excel(os.path.join(R, '도메인_태깅.xlsx'))
-    raw = pd.read_excel(os.path.join(os.path.dirname(BASE), '10_데이터수집', 'github_ai_agent_raw_v2.xlsx'))
+    raw = pd.read_excel(RAW)
     raw['created_dt'] = pd.to_datetime(raw['created_at']).dt.tz_localize(None)
     tag = tag.merge(raw[['full_name', 'created_dt']], on='full_name')
     fig, (a, b) = plt.subplots(1, 2, figsize=(7.0, 3.4), layout='constrained',

@@ -9,7 +9,8 @@ Scoring: score_label_eval.py
 """
 import os, random, pandas as pd
 random.seed(7)
-HERE = os.path.dirname(os.path.abspath(__file__)); RES = os.path.join(os.path.dirname(HERE), '30_분석결과')
+HERE = os.path.dirname(os.path.abspath(__file__))
+RES = os.path.join(os.path.dirname(HERE), 'results') if os.path.isdir(os.path.join(os.path.dirname(HERE), 'results')) else os.path.join(os.path.dirname(HERE), '30_분석결과')
 mac = pd.read_excel(os.path.join(RES, '토픽_macro_k5.xlsx')); mac['level'] = 'macro'; mac['cid'] = 'T' + mac['cluster'].astype(str)
 mes = pd.read_excel(os.path.join(RES, '토픽_meso_k12.xlsx')); mes['level'] = 'meso'; mes['cid'] = 'M' + mes['cluster'].astype(str)
 allc = pd.concat([mac, mes], ignore_index=True)

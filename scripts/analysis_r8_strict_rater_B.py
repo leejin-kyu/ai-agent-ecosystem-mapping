@@ -11,7 +11,11 @@ Outputs -> 30_분석결과/R1_revision/F_precision_robustness.xlsx
 """
 import os, re, numpy as np, pandas as pd, statsmodels.api as sm
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-RES = os.path.join(ROOT, '30_분석결과'); OUT = os.path.join(RES, 'R1_revision'); AUD = os.path.join(ROOT, '40_감사_인간평가키트'); DATA = os.path.join(ROOT, '10_데이터수집')
+if os.path.isdir(os.path.join(ROOT, 'results')):   # replication repository layout (data/, results/, audit/)
+    RES, DATA, AUD = os.path.join(ROOT, 'results'), os.path.join(ROOT, 'data'), os.path.join(ROOT, 'audit')
+else:                                              # authors' working-folder layout
+    RES, DATA, AUD = os.path.join(ROOT, '30_분석결과'), os.path.join(ROOT, '10_데이터수집'), os.path.join(ROOT, '40_감사_인간평가키트')
+OUT = os.path.join(RES, 'R1_revision')
 df = pd.read_excel(os.path.join(RES, '문서_군집할당.xlsx'))
 raw = pd.read_excel(os.path.join(DATA, 'github_ai_agent_raw_v2.xlsx'))[['full_name', 'description', 'topics']]
 df = df.merge(raw, on='full_name', how='left')

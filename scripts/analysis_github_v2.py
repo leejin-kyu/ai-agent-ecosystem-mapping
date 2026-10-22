@@ -8,8 +8,11 @@ import pandas as pd
 import urllib.request
 
 BASE = os.path.dirname(os.path.abspath(__file__))
-DATA = os.path.join(BASE, '데이터', 'github_ai_agent_raw_v2.xlsx')
-R = os.path.join(BASE, '결과물_github_v2')
+REPO = os.path.dirname(BASE)
+if os.path.isdir(os.path.join(REPO, 'results')):   # replication repository layout (data/, results/)
+    DATA = os.path.join(REPO, 'data', 'github_ai_agent_raw_v2.xlsx'); R = os.path.join(REPO, 'results')
+else:                                              # original working layout
+    DATA = os.path.join(BASE, '데이터', 'github_ai_agent_raw_v2.xlsx'); R = os.path.join(BASE, '결과물_github_v2')
 os.makedirs(R, exist_ok=True)
 def log(m): print(m, flush=True)
 
