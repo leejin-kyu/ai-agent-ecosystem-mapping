@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-"""현행 용어 + 표준 후보 용어의 선행연구 DF 계산 → 30_분석결과/용어검토/후보용어DF.csv"""
+"""Compute the prior-work DF of current terms and of candidate standard terms -> 30_analysis_results/term_review/candidate_term_DF.csv"""
 import json, re, os, pandas as pd
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__))); OUT = os.path.join(ROOT, '30_분석결과', '용어검토')
-docs = {k: re.sub(r'[‐-―]', '-', v.lower()) for k, v in json.load(open(os.path.join(OUT, '선행연구_전문텍스트.json'), encoding='utf-8')).items()}
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__))); OUT = os.path.join(ROOT, '30_analysis_results', 'term_review')
+docs = {k: re.sub(r'[‐-―]', '-', v.lower()) for k, v in json.load(open(os.path.join(OUT, 'prior_work_fulltext.json'), encoding='utf-8')).items()}
 def df(t):
     t = t.lower(); pats = {t, t.replace('-', ' '), t.replace(' ', '-')}
     if not t.endswith('s'): pats |= {p + 's' for p in list(pats)}
@@ -30,4 +30,4 @@ rows = []
 for g, terms in groups.items():
     for t in terms:
         d, tot, h = df(t); rows.append((g, t, d, tot, ', '.join(h)[:120])); print(f'{g:18s} | {t:32s} | DF {d:2d} | total {tot:5d}')
-pd.DataFrame(rows, columns=['group', 'term', 'prior_DF', 'prior_total', 'docs']).to_csv(os.path.join(OUT, '후보용어DF.csv'), index=False, encoding='utf-8-sig')
+pd.DataFrame(rows, columns=['group', 'term', 'prior_DF', 'prior_total', 'docs']).to_csv(os.path.join(OUT, 'candidate_term_DF.csv'), index=False, encoding='utf-8-sig')

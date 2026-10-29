@@ -1,0 +1,14 @@
+Judged 120 (unanswered/multiple marks 0) | human precision = 0.917  Wilson95% [0.853, 0.954]
+LLM consensus precision (same 120 items) = 0.817 | human-LLM agreement = 0.783 | κ = 0.082
+Resource list/tutorial = 0.000 | No/not sure = 0.083
+
+By segment:
+          n  human_prec  llm_prec
+cluster                          
+0        24       0.958     0.833
+1        24       1.000     0.625
+2        24       0.875     0.833
+3        24       0.833     0.875
+4        24       0.917     0.917
+
+Mean label fit 2.76/3 (macro 2.60, meso 2.83), 17 responses

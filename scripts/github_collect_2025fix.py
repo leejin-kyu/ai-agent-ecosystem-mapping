@@ -1,4 +1,4 @@
-# 절단된 2025 슬라이스 3건을 월 단위로 재수집해 기존 xlsx에 병합 (월>1000이면 주 단위 재분할)
+# Re-collect the 3 truncated 2025 slices month by month and merge into the existing xlsx (re-split by week if a month has >1000)
 import json, time, os, subprocess, calendar
 import urllib.request, urllib.parse
 import pandas as pd
@@ -43,7 +43,7 @@ def collect_range(q, d1, d2, repos):
     incomplete = data.get('incomplete_results', False)
     log(f'{full_q} -> {total} (incomplete={incomplete})')
     if total > 1000:
-        # 주 단위 재분할
+        # Re-split by week
         days = pd.date_range(d1, d2, freq='7D').strftime('%Y-%m-%d').tolist()
         bounds = days + [d2]
         for a, b in zip(bounds[:-1], bounds[1:]):

@@ -30,8 +30,8 @@ def find_root(start):
     for _ in range(5):
         if os.path.isdir(os.path.join(d, 'results')) and os.path.isdir(os.path.join(d, 'data')) and os.path.isdir(os.path.join(d, 'audit')):
             return d, os.path.join(d, 'results'), os.path.join(d, 'data'), os.path.join(d, 'audit'), os.path.join(d, 'results', 'R11')
-        if os.path.isdir(os.path.join(d, '30_분석결과')):
-            return d, os.path.join(d, '30_분석결과'), os.path.join(d, '10_데이터수집'), os.path.join(d, '40_감사_인간평가키트'), HERE
+        if os.path.isdir(os.path.join(d, '30_analysis_results')):
+            return d, os.path.join(d, '30_analysis_results'), os.path.join(d, '10_data_collection'), os.path.join(d, '40_audit_human_annotation_kit'), HERE
         d = os.path.dirname(d)
     raise SystemExit('could not locate data/results folders')
 ROOT, RES, DATA, AUD, OUTD = find_root(HERE); os.makedirs(OUTD, exist_ok=True)
@@ -46,13 +46,13 @@ def wilson(k, n, z=1.96):
     p = k / n; d = 1 + z * z / n; c = (p + z * z / (2 * n)) / d; h = z * np.sqrt(p * (1 - p) / n + z * z / (4 * n * n)) / d; return c - h, c + h
 
 # ───────────── corpus ─────────────
-assign = pd.read_excel(os.path.join(RES, '문서_군집할당.xlsx'))
+assign = pd.read_excel(os.path.join(RES, 'document_cluster_assignments.xlsx'))
 raw = pd.read_excel(os.path.join(DATA, 'github_ai_agent_raw_v2.xlsx'))
 raw['created_at'] = pd.to_datetime(raw['created_at'], utc=True)
 df = assign.merge(raw[['full_name', 'created_at', 'description', 'topics']], on='full_name', how='left')
 assert df['created_at'].notna().all() and len(df) == 9601
 df['quarter'] = df['created_at'].dt.to_period('Q').astype(str)
-dom = pd.read_excel(os.path.join(RES, '도메인_태깅.xlsx'))
+dom = pd.read_excel(os.path.join(RES, 'domain_tagging.xlsx'))
 DOMS = [c for c in dom.columns if c not in ('full_name', 'year', 'General')]
 df = df.merge(dom[['full_name'] + DOMS], on='full_name', how='left')
 for d in DOMS: df[d] = df[d].fillna(False).astype(int)
@@ -63,7 +63,7 @@ Nc = df['cluster'].value_counts().sort_index(); W = Nc / Nc.sum()
 log(f'corpus n={len(df)} | cluster sizes {Nc.to_dict()} | weights {W.round(4).to_dict()}')
 
 # ───────────── P1  dual-LLM relevance-positive rate ─────────────
-aud = pd.read_excel(os.path.join(AUD, '인간평가_층화표본400.xlsx'), sheet_name='sample')
+aud = pd.read_excel(os.path.join(AUD, 'human_eval_stratified_sample_400.xlsx'), sheet_name='sample')
 aud['both'] = aud['llm_qwen'].isin(AG) & aud['llm_llama'].isin(AG); aud['either'] = aud['llm_qwen'].isin(AG) | aud['llm_llama'].isin(AG)
 P1 = []
 for c, g in aud.groupby('cluster'):
@@ -77,16 +77,16 @@ P1.append(dict(stratum='All (cluster-size weighted)', n=len(aud), RPR_both=rpr_w
 P1 = pd.DataFrame(P1); log('\n[P1] dual-LLM relevance-positive rate\n' + P1.round(4).to_string(index=False))
 
 # ───────────── P3  human annotation: equal allocation vs weighted ─────────────
-MARK = lambda v: str(v).strip() not in ('', 'nan', 'None') and str(v).strip().upper().rstrip('.0') in ('O', '', 'V', 'X', '✓', 'ㅇ', '○', 'Ο')
-FILES = {'A': '설문지_초간단_작성.xlsx', 'B': '설문지_친구용_2차평가자_작성.xlsx', 'C': '설문지_친구용_3차평가자_작성.xlsx'}
+MARK = lambda v: str(v).strip() not in ('', 'nan', 'None') and str(v).strip().upper().rstrip('.0') in ('O', '', 'V', 'X', '✓', '\u3147', '○', 'Ο')  # '\u3147' = Korean letter ieung (looks like O), accepted as a check mark
+FILES = {'A': 'survey_simplest_completed.xlsx', 'B': 'survey_friend_version_rater2_completed.xlsx', 'C': 'survey_friend_version_rater3_completed.xlsx'}
 def load(f):
-    d = pd.read_excel(os.path.join(AUD, f), sheet_name='① 프로젝트 120개'); d.columns = ['번호', 'desc', 'link', 'a1', 'a2', 'a3']; d['번호'] = range(1, len(d) + 1)
+    d = pd.read_excel(os.path.join(AUD, f), sheet_name='① Projects (120)'); d.columns = ['item_no', 'desc', 'link', 'a1', 'a2', 'a3']; d['item_no'] = range(1, len(d) + 1)
     d['ans'] = d.apply(lambda r: (str([MARK(r.a1), MARK(r.a2), MARK(r.a3)].index(True) + 1) if sum([MARK(r.a1), MARK(r.a2), MARK(r.a3)]) == 1 else None), axis=1)
-    return d[['번호', 'ans']]
+    return d[['item_no', 'ans']]
 H = load(FILES['A']).rename(columns={'ans': 'A'})
-for k in 'BC': H = H.merge(load(FILES[k]).rename(columns={'ans': k}), on='번호')
+for k in 'BC': H = H.merge(load(FILES[k]).rename(columns={'ans': k}), on='item_no')
 H = H.dropna()
-key = pd.read_excel(os.path.join(AUD, '설문지_정답키(열지마세요).xlsx'), sheet_name='repo_key'); H = H.merge(key, on='번호')
+key = pd.read_excel(os.path.join(AUD, 'survey_answer_key_do_not_open.xlsx'), sheet_name='repo_key'); H = H.merge(key, on='item_no')
 H['LLM'] = H['llm_qwen'].isin(AG) & H['llm_llama'].isin(AG)
 for k in 'ABC': H[k + '_pos'] = H[k] == '1'
 cnt = H[['A_pos', 'B_pos', 'C_pos']].sum(1)

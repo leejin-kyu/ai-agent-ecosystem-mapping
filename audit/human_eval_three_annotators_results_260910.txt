@@ -1,5 +1,5 @@
 A: answered 120 | dist {'1': 110, '3': 10} | exp=?
-B: answered 120 | dist {'1': 84, '2': 20, '3': 16} | exp=많음
+B: answered 120 | dist {'1': 84, '2': 20, '3': 16} | exp=extensive
 C: answered 120 | dist {'1': 97, '2': 23} | exp=?
 
 n=120

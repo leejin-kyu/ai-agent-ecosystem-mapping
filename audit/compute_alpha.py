@@ -1,6 +1,6 @@
-# rater1/rater2 채운 뒤 실행: python compute_alpha.py
+# Run after filling in rater1/rater2: python compute_alpha.py
 import pandas as pd, numpy as np
-df = pd.read_excel('인간평가_층화표본400.xlsx', sheet_name='sample')
+df = pd.read_excel('human_eval_stratified_sample_400.xlsx', sheet_name='sample')
 d = df[(df.rater1 != '') & (df.rater2 != '')][['rater1', 'rater2']].dropna()
 cats = sorted(set(d.rater1) | set(d.rater2))
 o = pd.crosstab(d.rater1, d.rater2).reindex(index=cats, columns=cats, fill_value=0).values

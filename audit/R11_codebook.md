@@ -1,40 +1,44 @@
 # Codebook — "AI-agent repository" (R11, 2026-10-15)
 
-목적: 3인 평가에서 갈린 경계(튜토리얼·템플릿·자료모음·논문코드)를 **사전에 정한 규칙**으로 판정한다.
-원래 3인 결과(α = 0.29)는 그대로 공개하고, 이 코드북으로 얻은 판정은 **별도 결과**로 보고한다.
-합의 판정 후의 일치도를 "독립 평가자 간 신뢰도"로 쓰지 않는다(독립 재평가 시트 ①에서만 신뢰도를 계산).
+Purpose: to judge the boundary on which the three annotators disagreed (tutorials, templates, resource collections, paper code) by **rules fixed in advance**.
+The original three-annotator results (α = 0.29) are released unchanged, and judgments obtained with this codebook are reported as **separate results**.
+Agreement after consensus adjudication is not used as "independent inter-annotator reliability" (reliability is computed only from the independent re-annotation, sheet ①).
 
-## 판정 단위
-저장소 이름 · 설명 · 토픽 태그를 1차 근거로 쓴다. 판정이 안 되면 GitHub README 첫 화면까지만 본다.
-판정 시점의 저장소 상태가 아니라 **수집 시점(2026-08-08) 메타데이터가 말하는 주된 목적**을 판정한다.
+## Unit of judgment
+The repository name, description, and topic tags are the primary evidence. If these are insufficient, look only at the first screen of the GitHub README.
+Judge the **main purpose stated by the metadata at collection time (2026-08-08)**, not the state of the repository at the time of judgment.
 
-## 3개 범주
-| 코드 | 범주 | 정의 |
+## Three classes
+| Code | Class | Definition |
 |---|---|---|
-| **1** | 에이전트 소프트웨어 (target) | 다른 사람이 **설치·실행·연동해서 쓰도록** 만든 에이전트 프레임워크/SDK, 에이전트로 동작하는 애플리케이션, MCP 서버·클라이언트·MCP 연동 도구 |
-| **2** | 학습·참고 자료 | 사용법을 **가르치거나 모아 보여주는 것**이 주목적: 튜토리얼·강의·예제 모음, awesome/큐레이션 목록, 시작용 템플릿·보일러플레이트, 논문 재현 코드 |
-| **3** | 무관·판정 불가 | 에이전트와 무관하거나, 정보가 부족해 1·2를 정할 수 없음 |
+| **1** | Agent software (target) | Agent frameworks/SDKs made **for others to install, run, or integrate**, applications that operate as agents, MCP servers, clients, and MCP-integration tools |
+| **2** | Learning/reference resource | Main purpose is **to teach usage or to collect and present material**: tutorials, lectures, example collections, awesome/curated lists, starter templates and boilerplates, paper reproduction code |
+| **3** | Unrelated/undecidable | Unrelated to agents, or too little information to decide between 1 and 2 |
 
-## 경계 규칙 (번호를 판정 시트에 적는다)
-| 규칙 | 상황 | 판정 |
+## Boundary rules (write the rule number in the judgment sheet)
+| Rule | Situation | Judgment |
 |---|---|---|
-| R1 | 이름/설명에 tutorial, course, lecture, workshop, examples, cookbook, "learn …" | **2** |
+| R1 | Name/description contains tutorial, course, lecture, workshop, examples, cookbook, "learn …" | **2** |
 | R2 | awesome-, curated list, collection of, resources, papers list | **2** |
-| R3 | template, starter, boilerplate, scaffold — 복제해서 시작점으로 쓰는 뼈대 | **2** |
-| R4 | 논문 공식 구현·재현 코드(“official implementation of [paper]”), 벤치마크 데이터셋 | **2** |
-| R5 | 단일 데모·장난감 프로젝트지만 **실행 가능한 에이전트 앱**으로 배포(설치 방법·사용법 있음) | **1** |
-| R6 | 에이전트용 설정·프롬프트·스킬·워크플로 묶음(예: Claude Code 워크플로, 시스템 프롬프트 모음) — 그 자체가 도구에 꽂아 쓰는 확장으로 배포 | **1** / 읽기 자료로만 제시 → **2** |
-| R7 | 에이전트 프레임워크 위에 얹는 라이브러리·플러그인·통합(도구 커넥터, 메모리 모듈) | **1** |
-| R8 | 일반 LLM 앱(챗봇·RAG 검색)으로, 계획·도구 사용·자율 실행 요소가 메타데이터에 없음 | **3** |
-| R9 | 이름만 agent(부동산 agent, 보험 agent 등)이고 AI 에이전트와 무관 | **3** |
-| R10 | 두 목적이 섞이면 **README 첫 문단이 말하는 주목적** 하나로 판정. 그래도 결정 불가 → **3** | — |
+| R3 | template, starter, boilerplate, scaffold — a skeleton that is copied and used as a starting point | **2** |
+| R4 | Official paper implementation or reproduction code ("official implementation of [paper]"), benchmark datasets | **2** |
+| R5 | A single demo or toy project, but distributed as a **runnable agent app** (with installation and usage instructions) | **1** |
+| R6 | Bundles of agent settings, prompts, skills, or workflows (e.g., Claude Code workflows, system-prompt collections) — distributed as an extension that plugs into a tool | **1** / presented only as reading material → **2** |
+| R7 | Libraries, plugins, or integrations that sit on top of an agent framework (tool connectors, memory modules) | **1** |
+| R8 | A generic LLM app (chatbot, RAG search) whose metadata show no planning, tool use, or autonomous execution | **3** |
+| R9 | "agent" only in the name (real-estate agent, insurance agent, etc.) and unrelated to AI agents | **3** |
+| R10 | If two purposes are mixed, judge by the single **main purpose stated in the first paragraph of the README**. If still undecidable → **3** | — |
 
-## 절차
-1. **시트 ① 독립 재평가(120건, 원래 판정 숨김)** — 코드북을 읽은 평가자 2인 이상이 서로 상의 없이 120건 전부를 다시 판정. → 코드북 적용 후 독립 신뢰도(α)를 계산.
-2. **시트 ② 합의 판정(불일치 40건, 원래 판정 공개)** — 판정자 1~2인이 규칙 번호를 적으며 최종 범주를 정함. → "코드북 합의 기준 정밀도"(별도 결과).
-3. `score_adjudication.py` 실행 → `R11_adjudication_result.txt`. 이 결과는 원고 §Human annotation의 "codebook-adjudicated" 문단 자리([ADJ] 표시)에 넣는다.
+## Procedure
+1. **Sheet ① independent re-annotation (120 items, original judgments hidden)** — two or more annotators who have read the codebook re-judge all 120 items without consulting each other. → Compute independent reliability (α) after applying the codebook.
+2. **Sheet ② consensus adjudication (40 disagreement items, original judgments shown)** — one or two adjudicators decide the final class, recording the rule number. → "Precision under codebook adjudication" (a separate result).
+3. Run `score_adjudication.py` → `R11_adjudication_result.txt`. This result goes into the "codebook-adjudicated" paragraph of the manuscript section Human annotation (placeholder marked [ADJ]).
 
-## 원고 보고 원칙
-- 원래 3인 α = 0.285(= 0.29)와 쌍별 κ는 그대로 둔다.
-- 시트 ① 결과는 "after codebook, independent re-annotation" 신뢰도로, 시트 ② 결과는 "adjudicated label" 정밀도로 **구분해서** 보고한다.
-- 판정자 이름은 원고·공개 패키지에 쓰지 않는다(Annotator A–C, Adjudicator 1–2).
+## Reporting principles for the manuscript
+- The original three-annotator α = 0.285 (= 0.29) and the pairwise κ values are kept unchanged.
+- Results from sheet ① are reported as "after codebook, independent re-annotation" reliability, and results from sheet ② as "adjudicated label" precision, **kept separate**.
+- Adjudicator names are not written in the manuscript or the released package (Annotator A–C, Adjudicator 1–2).
+
+## Files
+- Adjudication kit: `audit/R11_adjudication_sheets.xlsx` (sheets `Read me`, `① Independent reannotation 120`, `② Consensus adjudication 40`), generated by `audit/make_adjudication_kit.py`.
+- Completed copies are expected as `audit/R11_adjudication_sheets_rater<N>.xlsx` (sheet ①) and `audit/R11_adjudication_sheets_consensus.xlsx` (sheet ②); scored by `audit/score_adjudication.py`.

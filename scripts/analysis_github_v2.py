@@ -1,7 +1,7 @@
-# GitHub AI Agent 분석 v2 — 리뷰 15항목 반영판
-# ①truncation 제거 데이터(v2) ②k=2~30 스윕+macro/meso 이중 해상도 ③20-seed+부트스트랩 안정성
-# ④베이스라인 4종(LDA/NMF/TFIDF+KMeans/BERTopic) c_v+c_npmi+diversity(정의 감사)
-# ⑤Binomial GLM(OR/yr, 95% CI, BH-FDR) + Emergent taxonomy ⑥월별/분기별 PELT+민감도 ⑦stars/archived 민감도
+# GitHub AI Agent analysis v2 - revision addressing 15 review items
+# (1) de-truncated data (v2) (2) k=2-30 sweep + dual macro/meso granularity (3) 20-seed + bootstrap stability
+# (4) 4 baselines (LDA/NMF/TFIDF+KMeans/BERTopic) c_v + c_npmi + diversity (definition audited)
+# (5) Binomial GLM (OR/yr, 95% CI, BH-FDR) + Emergent taxonomy (6) monthly/quarterly PELT + sensitivity (7) stars/archived sensitivity
 import os, re, json
 import numpy as np
 import pandas as pd
@@ -12,14 +12,14 @@ REPO = os.path.dirname(BASE)
 if os.path.isdir(os.path.join(REPO, 'results')):   # replication repository layout (data/, results/)
     DATA = os.path.join(REPO, 'data', 'github_ai_agent_raw_v2.xlsx'); R = os.path.join(REPO, 'results')
 else:                                              # original working layout
-    DATA = os.path.join(BASE, '데이터', 'github_ai_agent_raw_v2.xlsx'); R = os.path.join(BASE, '결과물_github_v2')
+    DATA = os.path.join(BASE, 'data', 'github_ai_agent_raw_v2.xlsx'); R = os.path.join(BASE, 'results_github_v2')
 os.makedirs(R, exist_ok=True)
 def log(m): print(m, flush=True)
 
 MACRO_K = 5
 MESO_K = 12
 
-# ─── 1. 로드 ───
+# ─── 1. Load ───
 df = pd.read_excel(DATA)
 df['created_dt'] = pd.to_datetime(df['created_at'])
 df['year'] = df['created_dt'].dt.year
@@ -29,10 +29,10 @@ df['text'] = (name_txt.fillna('') + '. ' + df['description'].fillna('') + '. ' +
               df['topics'].fillna('').str.replace(';', ' ', regex=False)).str.strip()
 df['textlen'] = (df['description'].fillna('') + df['topics'].fillna('')).str.len()
 df = df[df['textlen'] >= 10].reset_index(drop=True)
-log(f'문서 수: {len(df)}')
+log(f'Number of documents: {len(df)}')
 log(df['year'].value_counts().sort_index().to_string())
 
-# ─── 2. 임베딩 ───
+# ─── 2. Embeddings ───
 def ollama(endpoint, payload, timeout=600):
     req = urllib.request.Request(f'http://localhost:11434/api/{endpoint}',
                                  data=json.dumps(payload).encode(),
@@ -43,18 +43,18 @@ def ollama(endpoint, payload, timeout=600):
 EMB_NPY = os.path.join(R, 'embeddings.npy'); KEY_NPY = os.path.join(R, 'emb_keys.npy')
 if os.path.exists(EMB_NPY) and os.path.exists(KEY_NPY) and \
    list(np.load(KEY_NPY, allow_pickle=True)) == df['full_name'].tolist():
-    emb = np.load(EMB_NPY); log('임베딩 캐시 로드')
+    emb = np.load(EMB_NPY); log('Loaded cached embeddings')
 else:
     embs = []
     for i in range(0, len(df), 64):
         embs.extend(ollama('embed', {'model': 'bge-m3', 'input': df['text'].iloc[i:i+64].tolist()})['embeddings'])
-        if i % 1280 == 0: log(f'  임베딩 {i}/{len(df)}')
+        if i % 1280 == 0: log(f'  embedding {i}/{len(df)}')
     emb = np.array(embs, dtype=np.float32)
     np.save(EMB_NPY, emb); np.save(KEY_NPY, np.array(df['full_name'].tolist(), dtype=object))
 emb_n = emb / np.linalg.norm(emb, axis=1, keepdims=True)
-log(f'임베딩 {emb.shape}')
+log(f'Embeddings {emb.shape}')
 
-# ─── 3. 토큰화·사전 (공통) ───
+# ─── 3. Tokenization and dictionary (shared) ───
 from gensim import corpora
 from gensim.models import LdaModel, CoherenceModel
 STOP = set('ai agent agents llm llms based using with your for the and this that http https github com an of to in on a is are it by or as at be can you use from'.split())
@@ -70,11 +70,11 @@ def coh(topics_words, kind='c_v'):
     return CoherenceModel(topics=tw, texts=tok, dictionary=dic, coherence=kind, processes=1).get_coherence()
 
 def diversity(topics_words):
-    # 정의 감사: 각 토픽 top-10 '원' 단어(사전 필터 없이) — unique / (k*10)
+    # Definition audit: each topic's raw top-10 words (without dictionary filtering) - unique / (k*10)
     allw = [w for ws in topics_words for w in ws[:10]]
     return len(set(allw)) / len(allw)
 
-# ─── 4. 제안: KMeans k=2~30 스윕 ───
+# ─── 4. Proposed method: KMeans k=2-30 sweep ───
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score, adjusted_rand_score
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -102,13 +102,13 @@ for k in range(2, 31):
     sil_rows.append({'k': k, 'silhouette': round(float(s), 4)})
     kms[k] = km
     log(f'k={k} sil={s:.4f}')
-pd.DataFrame(sil_rows).to_excel(os.path.join(R, '군집_k선정_실루엣_2to30.xlsx'), index=False)
+pd.DataFrame(sil_rows).to_excel(os.path.join(R, 'cluster_k_selection_silhouette_2to30.xlsx'), index=False)
 
 km_macro, km_meso = kms[MACRO_K], kms[MESO_K]
 df['cluster'] = km_macro.labels_
 df['cluster_meso'] = km_meso.labels_
 
-# 20-seed 안정성 + 부트스트랩(80% 서브샘플 ×20)
+# 20-seed stability + bootstrap (80% subsample x20)
 seed_aris = []
 for seed in range(1, 21):
     km2 = KMeans(n_clusters=MACRO_K, random_state=seed, n_init=10).fit(emb_n)
@@ -125,10 +125,10 @@ stab = pd.DataFrame({
     'IQR_lo': [np.percentile(seed_aris, 25), np.percentile(boot_aris, 25)],
     'IQR_hi': [np.percentile(seed_aris, 75), np.percentile(boot_aris, 75)],
     'min': [min(seed_aris), min(boot_aris)], 'max': [max(seed_aris), max(boot_aris)]}).round(4)
-stab.to_excel(os.path.join(R, '안정성_seed_bootstrap.xlsx'), index=False)
+stab.to_excel(os.path.join(R, 'stability_seed_bootstrap.xlsx'), index=False)
 log(stab.to_string())
 
-# ─── 5. 본비교: 4 베이스라인 + 제안 (k=2~30 스윕, c_v 최적 k 보고) ───
+# ─── 5. Main comparison: 4 baselines + proposed method (k=2-30 sweep, report k with best c_v) ───
 from sklearn.decomposition import NMF
 results = []
 sweep_rows = []
@@ -146,12 +146,12 @@ def eval_method(name, get_topics, ks):
                     'c_npmi': round(coh(tws, 'c_npmi'), 4), 'diversity': round(diversity(tws), 4)})
     return best
 
-KS = list(range(2, 31, 2)) + [5, 15]  # 계산량 관리: 짝수 k + 5, 15
+KS = list(range(2, 31, 2)) + [5, 15]  # limit computation: even k plus 5 and 15
 KS = sorted(set(KS))
-# 제안 (BGE+KMeans)
+# Proposed method (BGE+KMeans)
 eval_method('BGE-M3+KMeans (proposed)', lambda k: cluster_topwords(kms[k].labels_, k) if k in kms
             else cluster_topwords(KMeans(n_clusters=k, random_state=100, n_init=10).fit(emb_n).labels_, k), KS)
-# macro/meso 고정 해상도 지표도 기록
+# Also record metrics at the fixed macro/meso granularities
 for kk, tag in [(MACRO_K, 'macro'), (MESO_K, 'meso')]:
     tws = cluster_topwords(kms[kk].labels_, kk)
     results.append({'method': f'BGE-M3+KMeans ({tag} k={kk})', 'best_k': kk, 'c_v': round(coh(tws, 'c_v'), 4),
@@ -171,7 +171,7 @@ def lda_topics(k):
     lda = LdaModel(corpus, num_topics=k, id2word=dic, random_state=100, passes=10)
     return [[w for w, _ in lda.show_topic(t, 15)][:10] for t in range(k)]
 eval_method('LDA (gensim)', lda_topics, KS)
-# BERTopic (native k, 이상치 포함/제외 양쪽)
+# BERTopic (native k, with and without outliers)
 try:
     from bertopic import BERTopic
     from bertopic.vectorizers import ClassTfidfTransformer
@@ -185,12 +185,12 @@ try:
                     'diversity': round(diversity(tws_bt), 4)})
     log(f'BERTopic native topics={len(tws_bt)} outliers={n_out}')
 except Exception as e:
-    log(f'BERTopic 실패: {e}')
-pd.DataFrame(sweep_rows).to_excel(os.path.join(R, '본비교_k스윕.xlsx'), index=False)
-pd.DataFrame(results).to_excel(os.path.join(R, '본비교_지표_v2.xlsx'), index=False)
+    log(f'BERTopic failed: {e}')
+pd.DataFrame(sweep_rows).to_excel(os.path.join(R, 'main_comparison_k_sweep.xlsx'), index=False)
+pd.DataFrame(results).to_excel(os.path.join(R, 'main_comparison_metrics_v2.xlsx'), index=False)
 log(pd.DataFrame(results).to_string())
 
-# ─── 6. LLM 라벨 + Self-Refine (macro & meso) ───
+# ─── 6. LLM labels + Self-Refine (macro & meso) ───
 def gen(model, prompt, temp=0.2):
     return ollama('generate', {'model': model, 'prompt': prompt, 'stream': False,
                                'options': {'temperature': temp}})['response'].strip()
@@ -237,7 +237,7 @@ def label_pipeline(col, k, tag):
     d0, d1_ = dup(l0), dup(l1); s0m, s0 = spec(l0); s1m, s1 = spec(l1)
     ck['label_initial'] = [l0[c] for c in range(k)]; ck['label_refined'] = [l1[c] for c in range(k)]
     ck['spec_initial'] = s0; ck['spec_refined'] = s1
-    ck.to_excel(os.path.join(R, f'토픽_{tag}_k{k}.xlsx'), index=False)
+    ck.to_excel(os.path.join(R, f'topic_{tag}_k{k}.xlsx'), index=False)
     pd.DataFrame([{'granularity': tag, 'dup_init': round(d0, 4), 'dup_refined': round(d1_, 4),
                    'spec_init': round(s0m, 2), 'spec_refined': round(s1m, 2)}]
                  ).to_excel(os.path.join(R, f'SelfRefine_{tag}.xlsx'), index=False)
@@ -289,13 +289,13 @@ def glm_table(dfin, col, k, labels, tag):
 glm_macro = glm_table(df, 'cluster', MACRO_K, labels_macro, 'macro')
 glm_meso = glm_table(df, 'cluster_meso', MESO_K, labels_meso, 'meso')
 
-# ─── 8. PELT 월별/분기별 + 민감도 ───
+# ─── 8. PELT monthly/quarterly + sensitivity ───
 import ruptures as rpt
 mon = df.set_index('created_dt').resample('MS').size().reindex(
     pd.date_range('2016-01-01', '2025-12-01', freq='MS')).fillna(0)
 sens = []
 for model_ in ('l2', 'rbf'):
-    for pen in (0.5, 1, 2, 3):
+    for pen in (0.5, 1, 2, 3, 5):  # 2 models x 5 penalties x 3 min sizes = 30 configurations (see results/PELT_monthly_sensitivity.xlsx)
         for ms in (2, 3, 6):
             try:
                 cps = rpt.Pelt(model=model_, min_size=ms).fit(np.log1p(mon.values)).predict(pen=pen)
@@ -310,10 +310,10 @@ for c in range(MACRO_K):
     cps = rpt.Pelt(model='l2', min_size=4).fit(qs[c].values).predict(pen=0.02)
     sens.append({'series': f'quarterly_share_T{c}', 'model': 'l2', 'pen': 0.02, 'min_size': 4,
                  'changepoints': str([qs.index[i].strftime('%Y-Q%q').replace('%q', str(qs.index[i].quarter)) for i in cps[:-1]])})
-pd.DataFrame(sens).to_excel(os.path.join(R, 'PELT_월별_민감도.xlsx'), index=False)
+pd.DataFrame(sens).to_excel(os.path.join(R, 'PELT_monthly_sensitivity.xlsx'), index=False)
 log(pd.DataFrame(sens).head(30).to_string())
 
-# ─── 9. stars/archived 민감도 ───
+# ─── 9. stars/archived sensitivity ───
 sens2 = []
 for th in (5, 10, 50):
     for arch in (False, True):
@@ -322,10 +322,10 @@ for th in (5, 10, 50):
         for r in t.itertuples():
             sens2.append({'stars>=': th, 'incl_archived': arch, 'cluster': r.cluster, 'label': r.label,
                           'n': r.n, 'OR': r.OR_per_year, 'CI': f'[{r.CI_lo},{r.CI_hi}]', 'q': r.q_BH, 'tax': r.taxonomy})
-pd.DataFrame(sens2).to_excel(os.path.join(R, '민감도_stars_archived.xlsx'), index=False)
+pd.DataFrame(sens2).to_excel(os.path.join(R, 'sensitivity_stars_archived.xlsx'), index=False)
 
-# ─── 10. 연도별 비중·할당 저장 ───
-pd.crosstab(df['year'], df['cluster'], normalize='index').to_excel(os.path.join(R, '연도별_토픽비중.xlsx'))
+# ─── 10. Save shares by year and assignments ───
+pd.crosstab(df['year'], df['cluster'], normalize='index').to_excel(os.path.join(R, 'topic_share_by_year.xlsx'))
 df[['full_name', 'stars', 'language', 'license', 'archived', 'year', 'cluster', 'cluster_meso']].to_excel(
-    os.path.join(R, '문서_군집할당.xlsx'), index=False)
+    os.path.join(R, 'document_cluster_assignments.xlsx'), index=False)
 log('ALL DONE')

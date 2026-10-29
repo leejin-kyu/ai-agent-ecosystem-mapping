@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
-"""R6: 검토 완료 초록(R6_abstract_final.txt)을 main.tex에 적용하고 LangChain-centered→LangChain-based, 초록 단어 DF 재검증."""
+"""R6: apply the reviewed abstract (R6_abstract_final.txt) to main.tex, replace LangChain-centered -> LangChain-based, and re-check the DF of the abstract words."""
 import re, json, os, sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 tex = sys.argv[1]
-A = open(os.path.join(ROOT, '30_분석결과', '용어검토', 'R6_abstract_final.txt'), encoding='utf-8').read().strip()
+A = open(os.path.join(ROOT, '30_analysis_results', 'term_review', 'R6_abstract_final.txt'), encoding='utf-8').read().strip()
 s = open(tex, encoding='utf-8').read()
 i = s.index('\\begin{abstract}') + len('\\begin{abstract}'); j = s.index('\\end{abstract}')
 s = s[:i] + '\n' + A + '\n' + s[j:]
 s = s.replace('LangChain-centered', 'LangChain-based')
 open(tex, 'w', encoding='utf-8').write(s)
 print('abstract words', len(A.split()), '| control', sum(1 for c in s if ord(c) < 32 and c not in '\n'), '| centered left', s.count('LangChain-centered'))
-docs = {k: re.sub(r'[‐-―]', '-', v.lower()) for k, v in json.load(open(os.path.join(ROOT, '30_분석결과', '용어검토', '선행연구_전문텍스트.json'), encoding='utf-8')).items()}
+docs = {k: re.sub(r'[‐-―]', '-', v.lower()) for k, v in json.load(open(os.path.join(ROOT, '30_analysis_results', 'term_review', 'prior_work_fulltext.json'), encoding='utf-8')).items()}
 def df(t):
     t = t.lower(); pats = {t, t.replace('-', ' '), t.replace(' ', '-')}
     if not t.endswith('s'): pats |= {p + 's' for p in list(pats)}

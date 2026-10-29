@@ -31,7 +31,7 @@ for f in ['B_glm_functional_form_sensitivity.xlsx', 'C_cohort_activity_survivors
 ok &= cmp_xlsx(os.path.join(fresh, 'results', 'R11', 'R11_reanalysis.xlsx'), r11x, 'results/R11/R11_reanalysis.xlsx (vs authors\' run)')
 # human annotation statistics printed by score_three_annotators.py vs the released result text
 seg = txt.split('=== audit/score_three_annotators.py')[1].split('===')[0]
-ref = open(os.path.join(released, 'audit', '인간평가_3인_결과_260910.txt'), encoding='utf-8').read()
+ref = open(os.path.join(released, 'audit', 'human_eval_three_annotators_results_260910.txt'), encoding='utf-8').read()
 keys = ['precision 0.917', 'precision 0.700', 'precision 0.808', 'binary 0.285', 'majority(>=2 of 3) precision 0.792']
 found = {k: (k in seg) for k in keys}
 log(f'{"MATCH" if all(found.values()) else "DIFF "}  audit/score_three_annotators.py printed statistics: ' + ', '.join(f'{k}={v}' for k, v in found.items()))

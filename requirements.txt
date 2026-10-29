@@ -1,0 +1,17 @@
+# Python 3.11.9 was used for all analyses.
+# Pinned versions are those reported in the manuscript and REPRODUCIBILITY.md.
+scikit-learn==1.8.0
+gensim==4.4.0
+statsmodels==0.14.6
+ruptures==1.1.10
+bertopic==0.17.4
+# The following packages are imported by the scripts, but their versions were not recorded (unpinned):
+numpy        # unpinned
+pandas       # unpinned
+scipy        # unpinned
+matplotlib   # unpinned
+openpyxl     # unpinned (Excel reading/writing via pandas)
+patsy        # unpinned (natural cubic spline basis in r11_reanalysis.py)
+# Not installable with pip:
+#   Ollama (https://ollama.com) with bge-m3:latest, gemma3:12b, llama3.1:8b, qwen2.5:7b - only for embedding/LLM steps
+#   GitHub CLI `gh` (authenticated) - only for the collection scripts

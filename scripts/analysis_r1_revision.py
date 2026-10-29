@@ -7,8 +7,8 @@ R1 revision analyses (2026-09-08) responding to the IEEE comment (9/4):
   C. Survivorship / activity descriptives by creation cohort (pushed_at, archived, forks)         -> comment 5, minor
   D. Audit-sample precision by cluster and period + tutorial/awesome share                          -> comment 1, minor
   E. Representative repositories per macro/meso cluster (nearest centroid + top stars)              -> minor
-Run from the paper root:  python 20_분석코드/analysis_r1_revision.py
-Outputs -> 30_분석결과/R1_revision/
+Run from the paper root:  python 20_analysis_code/analysis_r1_revision.py
+Outputs -> 30_analysis_results/R1_revision/
 """
 import os, sys, json, warnings
 import numpy as np, pandas as pd
@@ -17,12 +17,12 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if os.path.isdir(os.path.join(ROOT, 'results')):   # replication repository layout (data/, results/, audit/)
     RES, DATA, AUD = os.path.join(ROOT, 'results'), os.path.join(ROOT, 'data'), os.path.join(ROOT, 'audit')
 else:                                              # authors' working-folder layout
-    RES, DATA, AUD = os.path.join(ROOT, '30_분석결과'), os.path.join(ROOT, '10_데이터수집'), os.path.join(ROOT, '40_감사_인간평가키트')
+    RES, DATA, AUD = os.path.join(ROOT, '30_analysis_results'), os.path.join(ROOT, '10_data_collection'), os.path.join(ROOT, '40_audit_human_annotation_kit')
 OUT = os.path.join(RES, 'R1_revision'); os.makedirs(OUT, exist_ok=True)
 SNAPSHOT = pd.Timestamp('2026-08-08', tz='UTC')
 def log(m): print(m, flush=True)
 
-assign = pd.read_excel(os.path.join(RES, '문서_군집할당.xlsx'))
+assign = pd.read_excel(os.path.join(RES, 'document_cluster_assignments.xlsx'))
 raw = pd.read_excel(os.path.join(DATA, 'github_ai_agent_raw_v2.xlsx'))
 raw['created_at'] = pd.to_datetime(raw['created_at'], utc=True); raw['pushed_at'] = pd.to_datetime(raw['pushed_at'], utc=True)
 df = assign.merge(raw[['full_name', 'created_at', 'pushed_at', 'forks', 'description', 'topics']], on='full_name', how='left')
@@ -39,7 +39,7 @@ emb = np.load(os.path.join(RES, 'embeddings.npy')); keys = np.load(os.path.join(
 key2idx = {k: i for i, k in enumerate(keys)}
 idx = np.array([key2idx[k] for k in df['full_name']]); X = normalize(emb[idx])   # cosine geometry via L2-normalised vectors
 rng = np.random.RandomState(100); sub = rng.choice(len(X), 5000, replace=False)
-cv_sweep = pd.read_excel(os.path.join(RES, '본비교_k스윕.xlsx')); cv_bge = cv_sweep[cv_sweep['method'].str.startswith('BGE')].set_index('k')['c_v']
+cv_sweep = pd.read_excel(os.path.join(RES, 'main_comparison_k_sweep.xlsx')); cv_bge = cv_sweep[cv_sweep['method'].str.startswith('BGE')].set_index('k')['c_v']
 A_FILE = os.path.join(OUT, 'A_k_selection_composite.xlsx')
 rows = []
 K_GRID = list(range(2, 16)) + [20, 25, 30]
@@ -124,7 +124,7 @@ for c in sorted(df['cluster_meso'].unique()):
     B_rows.append({'level': 'meso', **fit_forms(yearly_counts(df, 'cluster_meso', c), f'M{c} {meso_lab[c]}')})
     Q_rows.append({'level': 'meso', **quarterly_form(df, 'cluster_meso', c, f'M{c} {meso_lab[c]}')})
 # domains
-dom = pd.read_excel(os.path.join(RES, '도메인_태깅.xlsx')); dom = dom[dom['full_name'].isin(df['full_name'])].merge(df[['full_name', 'created_at', 'quarter']], on='full_name')
+dom = pd.read_excel(os.path.join(RES, 'domain_tagging.xlsx')); dom = dom[dom['full_name'].isin(df['full_name'])].merge(df[['full_name', 'created_at', 'quarter']], on='full_name')
 DOMS = [c for c in dom.columns if c not in ('full_name', 'year', 'General', 'created_at', 'quarter')]
 for dname in DOMS:
     dd = dom.copy(); dd['flag'] = dd[dname].astype(int)
@@ -159,7 +159,7 @@ for c in sorted(df['cluster'].unique()):
 pd.DataFrame(S_rows).to_excel(os.path.join(OUT, 'C_glm_active24m_sensitivity.xlsx'), index=False); log(pd.DataFrame(S_rows).to_string())
 
 # ───────────────────────── D. Audit precision by stratum ─────────────────────────
-aud = pd.read_excel(os.path.join(AUD, '인간평가_층화표본400.xlsx'), sheet_name='sample')
+aud = pd.read_excel(os.path.join(AUD, 'human_eval_stratified_sample_400.xlsx'), sheet_name='sample')
 AGENT = {'Agent-framework', 'Agent-application', 'MCP-server'}
 aud['both_agent'] = aud['llm_qwen'].isin(AGENT) & aud['llm_llama'].isin(AGENT)
 aud['either_agent'] = aud['llm_qwen'].isin(AGENT) | aud['llm_llama'].isin(AGENT)

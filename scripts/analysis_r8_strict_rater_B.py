@@ -7,21 +7,21 @@
                                repositories whose metadata match a tutorial/awesome/paper lexicon.
   F3 worst-case reassignment — Monte-Carlo: in each of 200 draws, randomly flag (1 - precision_segment) of each
                                segment's repositories as non-agent and refit; report share of draws with same sign.
-Outputs -> 30_분석결과/R1_revision/F_precision_robustness.xlsx
+Outputs -> 30_analysis_results/R1_revision/F_precision_robustness.xlsx
 """
 import os, re, numpy as np, pandas as pd, statsmodels.api as sm
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if os.path.isdir(os.path.join(ROOT, 'results')):   # replication repository layout (data/, results/, audit/)
     RES, DATA, AUD = os.path.join(ROOT, 'results'), os.path.join(ROOT, 'data'), os.path.join(ROOT, 'audit')
 else:                                              # authors' working-folder layout
-    RES, DATA, AUD = os.path.join(ROOT, '30_분석결과'), os.path.join(ROOT, '10_데이터수집'), os.path.join(ROOT, '40_감사_인간평가키트')
+    RES, DATA, AUD = os.path.join(ROOT, '30_analysis_results'), os.path.join(ROOT, '10_data_collection'), os.path.join(ROOT, '40_audit_human_annotation_kit')
 OUT = os.path.join(RES, 'R1_revision')
-df = pd.read_excel(os.path.join(RES, '문서_군집할당.xlsx'))
+df = pd.read_excel(os.path.join(RES, 'document_cluster_assignments.xlsx'))
 raw = pd.read_excel(os.path.join(DATA, 'github_ai_agent_raw_v2.xlsx'))[['full_name', 'description', 'topics']]
 df = df.merge(raw, on='full_name', how='left')
 prec = pd.Series({0: 0.750, 1: 0.417, 2: 0.750, 3: 0.792, 4: 0.792})   # strictest retained annotator (B) per-segment precision, 2026-09-10 (C excluded)
 lab = pd.read_excel(os.path.join(RES, 'GLM_taxonomy_macro.xlsx')).set_index('cluster')['label']
-dom = pd.read_excel(os.path.join(RES, '도메인_태깅.xlsx')); dom = dom[dom['full_name'].isin(df['full_name'])]
+dom = pd.read_excel(os.path.join(RES, 'domain_tagging.xlsx')); dom = dom[dom['full_name'].isin(df['full_name'])]
 DOMS = ['Gaming', 'SoftwareDev/Coding', 'Web/Browser automation']
 
 def glm(d, flag, w=None, window=None):
@@ -45,7 +45,7 @@ rows = []
 # F1 weights
 w = base['cluster'].map(prec).values
 # F2 conservative corpus
-aud = pd.read_excel(os.path.join(AUD, '인간평가_층화표본400.xlsx'), sheet_name='sample'); AG = {'Agent-framework', 'Agent-application', 'MCP-server'}
+aud = pd.read_excel(os.path.join(AUD, 'human_eval_stratified_sample_400.xlsx'), sheet_name='sample'); AG = {'Agent-framework', 'Agent-application', 'MCP-server'}
 bad_aud = set(aud[~(aud['llm_qwen'].isin(AG) & aud['llm_llama'].isin(AG))]['full_name'])
 lex = re.compile(r'\b(tutorial|tutorials|course|courses|lecture|awesome|curated|collection of|list of|cheat ?sheet|paper|papers|official (code|implementation)|implementation of|reproduc|homework|assignment|example[s]?|demo[s]?|template[s]?|boilerplate|starter)\b', re.I)
 txt = (base['full_name'].fillna('') + ' ' + base['description'].fillna('') + ' ' + base['topics'].fillna('')).str.replace(';', ' ')

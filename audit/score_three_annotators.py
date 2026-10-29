@@ -1,19 +1,19 @@
 # -*- coding: utf-8 -*-
-"""3인 평가자(A=저자, B·C=외부) — 정밀도·쌍별 κ·Krippendorff α(nominal)·다수결 합의·LLM 대비. 출력: 인간평가_3인_결과_260910.txt"""
+"""Three annotators (A = author, B and C = external): precision, pairwise kappa, Krippendorff's alpha (nominal), majority-vote consensus, comparison with LLMs. Output: human_eval_three_annotators_results_260910.txt"""
 import os, itertools, pandas as pd, numpy as np
 from sklearn.metrics import cohen_kappa_score
 HERE=os.path.dirname(os.path.abspath(__file__))
-FILES={'A':'설문지_초간단_작성.xlsx','B':'설문지_친구용_2차평가자_작성.xlsx','C':'설문지_친구용_3차평가자_작성.xlsx'}
-MARK=lambda v: str(v).strip() not in ('','nan','None') and str(v).strip().upper().rstrip('.0') in ('O','','V','X','✓','ㅇ','○','Ο')
+FILES={'A':'survey_simplest_completed.xlsx','B':'survey_friend_version_rater2_completed.xlsx','C':'survey_friend_version_rater3_completed.xlsx'}
+MARK=lambda v: str(v).strip() not in ('','nan','None') and str(v).strip().upper().rstrip('.0') in ('O','','V','X','✓','\u3147','○','Ο')  # '\u3147' = Korean letter ieung (looks like O), accepted as a check mark
 def load(f):
-    d=pd.read_excel(os.path.join(HERE,f),sheet_name='① 프로젝트 120개'); d.columns=['번호','desc','link','a1','a2','a3']; d['번호']=range(1,len(d)+1)
+    d=pd.read_excel(os.path.join(HERE,f),sheet_name='① Projects (120)'); d.columns=['item_no','desc','link','a1','a2','a3']; d['item_no']=range(1,len(d)+1)
     d['ans']=d.apply(lambda r: (str([MARK(r.a1),MARK(r.a2),MARK(r.a3)].index(True)+1) if sum([MARK(r.a1),MARK(r.a2),MARK(r.a3)])==1 else None),axis=1)
-    l=pd.read_excel(os.path.join(HERE,f),sheet_name='② 그룹 이름 17개'); l.columns=['번호','t','lab','b3','b2','b1']; l['번호']=range(1,len(l)+1)
+    l=pd.read_excel(os.path.join(HERE,f),sheet_name='② Group names (17)'); l.columns=['item_no','t','lab','b3','b2','b1']; l['item_no']=range(1,len(l)+1)
     l['fit']=l.apply(lambda r: ([3,2,1][[MARK(r.b3),MARK(r.b2),MARK(r.b1)].index(True)] if sum([MARK(r.b3),MARK(r.b2),MARK(r.b1)])==1 else np.nan),axis=1)
     try:
-        info=pd.read_excel(os.path.join(HERE,f),sheet_name='시작 전 읽기',header=None); exp=str(info.iloc[-1,1])
+        info=pd.read_excel(os.path.join(HERE,f),sheet_name='Read before starting',header=None); exp=str(info.iloc[-1,1])
     except Exception: exp='?'
-    return d[['번호','ans']],l[['번호','fit']],exp
+    return d[['item_no','ans']],l[['item_no','fit']],exp
 def wilson(k,n,z=1.96):
     p=k/n; den=1+z*z/n; c=(p+z*z/(2*n))/den; h=z*np.sqrt(p*(1-p)/n+z*z/(4*n*n))/den; return c-h,c+h
 def kripp_nominal(mat):
@@ -28,9 +28,9 @@ def kripp_nominal(mat):
 R={k:load(v) for k,v in FILES.items()}
 for k in R: print(f'{k}: answered {R[k][0].ans.notna().sum()} | dist {R[k][0].ans.value_counts().to_dict()} | exp={R[k][2]}')
 m=R['A'][0].rename(columns={'ans':'A'})
-for k in 'BC': m=m.merge(R[k][0].rename(columns={'ans':k}),on='번호')
+for k in 'BC': m=m.merge(R[k][0].rename(columns={'ans':k}),on='item_no')
 m=m.dropna()
-key=pd.read_excel(os.path.join(HERE,'설문지_정답키(열지마세요).xlsx'),sheet_name='repo_key'); m=m.merge(key,on='번호')
+key=pd.read_excel(os.path.join(HERE,'survey_answer_key_do_not_open.xlsx'),sheet_name='repo_key'); m=m.merge(key,on='item_no')
 AG={'Agent-framework','Agent-application','MCP-server'}; m['llm']=m.llm_qwen.isin(AG)&m.llm_llama.isin(AG); n=len(m)
 bin_={k:(m[k]=='1') for k in 'ABC'}
 print(f'\nn={n}')
@@ -46,9 +46,9 @@ print('\nper segment:'); print(m.assign(A=bin_['A'],B=bin_['B'],C=bin_['C'],maj=
 print('\n3-class distribution:', {k:m[k].value_counts().to_dict() for k in 'ABC'})
 # labels
 L=R['A'][1].rename(columns={'fit':'A'})
-for k in 'BC': L=L.merge(R[k][1].rename(columns={'fit':k}),on='번호')
+for k in 'BC': L=L.merge(R[k][1].rename(columns={'fit':k}),on='item_no')
 L=L.dropna()
-lk=pd.read_excel(os.path.join(HERE,'설문지_정답키(열지마세요).xlsx'),sheet_name='label_key'); L=L.merge(lk,on='번호'); L['mean']=L[['A','B','C']].mean(1)
+lk=pd.read_excel(os.path.join(HERE,'survey_answer_key_do_not_open.xlsx'),sheet_name='label_key'); L=L.merge(lk,on='item_no'); L['mean']=L[['A','B','C']].mean(1)
 print(f"\nlabels n={len(L)} | means A {L.A.mean():.2f} B {L.B.mean():.2f} C {L.C.mean():.2f} | pooled {L['mean'].mean():.2f} | all-identical {(L[['A','B','C']].nunique(1)==1).mean():.3f} | Krippendorff alpha(interval) {1-((L[['A','B','C']].values[:,:,None]-L[['A','B','C']].values[:,None,:])**2).sum()/ (3*2*len(L)) / (np.var(L[['A','B','C']].values)*1.0+1e-12):.3f}")
 print('by level:', L.groupby(L.cid.str[0])['mean'].mean().round(2).to_dict()); print('lowest:', L.sort_values('mean').head(3)[['cid','label_refined','A','B','C']].to_string(index=False))
 print('share of ratings = fits(3):', (L[['A','B','C']].values==3).mean().round(3))

@@ -1,6 +1,6 @@
-# JSS 수준 출판용 Figure 6종 — 사용: python visuals_jss.py [1|2|3|4|5|6|all]
-# 관례: 그림 내부 제목 없음(캡션은 원고), Okabe-Ito CVD-safe 팔레트, 직접 라벨, 300dpi,
-#       constrained_layout으로 텍스트 잘림 방지, GLM은 forest plot.
+# Six publication-quality figures (JSS standard) - usage: python visuals_jss.py [1|2|3|4|5|6|all]
+# Conventions: no titles inside figures (captions are in the manuscript), Okabe-Ito CVD-safe palette, direct labels, 300 dpi,
+#       constrained_layout to prevent clipped text, GLM results as forest plots.
 import os, sys
 import numpy as np
 import pandas as pd
@@ -14,11 +14,11 @@ if os.path.isdir(os.path.join(os.path.dirname(BASE), 'results')):   # replicatio
     R = os.path.join(os.path.dirname(BASE), 'results'); RAW = os.path.join(os.path.dirname(BASE), 'data', 'github_ai_agent_raw_v2.xlsx')
     OUT = os.path.join(os.path.dirname(BASE), 'figures', 'R5')
 else:                                                              # authors' working-folder layout
-    R = os.path.join(os.path.dirname(BASE), '30_분석결과'); RAW = os.path.join(os.path.dirname(BASE), '10_데이터수집', 'github_ai_agent_raw_v2.xlsx')
-    OUT = os.path.join(R, '논문그림_fig0-6', 'R5')
+    R = os.path.join(os.path.dirname(BASE), '30_analysis_results'); RAW = os.path.join(os.path.dirname(BASE), '10_data_collection', 'github_ai_agent_raw_v2.xlsx')
+    OUT = os.path.join(R, 'paper_figures_fig0-6', 'R5')
 os.makedirs(OUT, exist_ok=True)
 
-# ── 공통 스타일 ──
+# ── Common style ──
 plt.rcParams.update({
     'font.family': ['Arial', 'DejaVu Sans'],
     'font.size': 8.5, 'axes.labelsize': 9, 'axes.titlesize': 9,
@@ -28,7 +28,7 @@ plt.rcParams.update({
     'figure.dpi': 100, 'savefig.dpi': 300,
     'axes.unicode_minus': False,
 })
-# Okabe-Ito (colorblind-safe, 출판 표준)
+# Okabe-Ito (colorblind-safe, publication standard)
 OI = {'blue': '#0072B2', 'vermillion': '#D55E00', 'green': '#009E73',
       'purple': '#CC79A7', 'orange': '#E69F00', 'sky': '#56B4E9',
       'yellow': '#F0E442', 'black': '#000000', 'gray': '#8A8A8A'}
@@ -41,7 +41,7 @@ def save(fig, name):
     print('saved', p)
 
 def load_alloc():
-    alloc = pd.read_excel(os.path.join(R, '문서_군집할당.xlsx'))
+    alloc = pd.read_excel(os.path.join(R, 'document_cluster_assignments.xlsx'))
     raw = pd.read_excel(RAW)
     raw['created_dt'] = pd.to_datetime(raw['created_at']).dt.tz_localize(None)
     return alloc.merge(raw[['full_name', 'created_dt']], on='full_name')
@@ -49,9 +49,9 @@ def load_alloc():
 TOPIC_SHORT = {0: 'T0 Frameworks & dev tools', 1: 'T1 LangChain/LangGraph frameworks',
                2: 'T2 Orchestration & automation', 3: 'T3 MCP systems', 4: 'T4 Coding agents'}
 
-# ═══ Figure 1: 연도별 생성 레포 수 (막대 + 값 라벨) ═══
+# ═══ Figure 1: number of repositories created per year (bars + value labels) ═══
 def fig1():
-    alloc = pd.read_excel(os.path.join(R, '문서_군집할당.xlsx'))
+    alloc = pd.read_excel(os.path.join(R, 'document_cluster_assignments.xlsx'))
     cnt = alloc['year'].value_counts().sort_index()
     fig, ax = plt.subplots(figsize=(5.6, 2.9), layout='constrained')
     ax.grid(**GRID)
@@ -68,7 +68,7 @@ def fig1():
     ax.tick_params(length=3)
     save(fig, 'fig1_creation_years.png')
 
-# ═══ Figure 2: 월별 시계열(로그) + PELT 변화점 ═══
+# ═══ Figure 2: monthly time series (log) + PELT change points ═══
 def fig2():
     df = load_alloc()
     mon = df.set_index('created_dt').resample('MS').size().reindex(
@@ -80,7 +80,7 @@ def fig2():
     ax.set_ylabel('Repositories created per month + 1')
     ax.set_xlabel('Month of creation')
     ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f'{int(x):,}'))
-    # 변화점: 2023-02 (30/30 robust), 2018-12 (secondary)
+    # Change points: 2023-02 (30/30 robust), 2018-12 (secondary)
     cps = [('2023-02-01', OI['vermillion'], 'Feb 2023\n(30/30 configurations)', '-'),
            ('2018-12-01', OI['gray'], 'Dec 2018\n(secondary)', (0, (4, 3)))]
     for d, c, lbl, ls in cps:
@@ -89,7 +89,7 @@ def fig2():
         ax.annotate(lbl, (x, ax.get_ylim()[1]), xytext=(4, -4),
                     textcoords='offset points', ha='left', va='top',
                     fontsize=7.5, color=c)
-    # ChatGPT 출시 참조 마커 (정합, 비인과)
+    # Reference marker for the ChatGPT release (temporal alignment, not causal)
     x = pd.Timestamp('2022-11-30')
     ax.annotate('ChatGPT release (Nov 2022)', (x, 1.32), xytext=(-8, 0),
                 textcoords='offset points', ha='right', va='center',
@@ -98,13 +98,13 @@ def fig2():
     ax.tick_params(length=3)
     save(fig, 'fig2_monthly_changepoints.png')
 
-# ═══ Figure 3: (a) 실루엣 k-선정 + (b) 방법별 c_v 스윕 ═══
+# ═══ Figure 3: (a) silhouette k selection + (b) c_v sweep by method ═══
 def fig3():
     fig = plt.figure(figsize=(7.0, 3.2))
     ga = fig.add_axes([0.065, 0.145, 0.255, 0.76])
     gb = fig.add_axes([0.40, 0.145, 0.40, 0.76])
-    # (a) 실루엣
-    sil = pd.read_excel(os.path.join(R, '군집_k선정_실루엣_2to30.xlsx'))
+    # (a) silhouette
+    sil = pd.read_excel(os.path.join(R, 'cluster_k_selection_silhouette_2to30.xlsx'))
     ga.grid(**GRID)
     ga.plot(sil['k'], sil['silhouette'], '-', lw=1.4, color=OI['blue'],
             marker='o', ms=2.6, mec='none', zorder=3)
@@ -121,8 +121,8 @@ def fig3():
     ga.set_xticks([2, 5, 12, 20, 30])
     ga.set_title('(a) Cluster-number selection', fontsize=8.5, loc='left')
     ga.margins(y=0.12); ga.tick_params(length=3)
-    # (b) c_v 스윕
-    sw = pd.read_excel(os.path.join(R, '본비교_k스윕.xlsx'))
+    # (b) c_v sweep
+    sw = pd.read_excel(os.path.join(R, 'main_comparison_k_sweep.xlsx'))
     order = ['TF-IDF+KMeans', 'BGE-M3+KMeans (proposed)', 'NMF (TF-IDF)', 'LDA (gensim)']
     disp = {'TF-IDF+KMeans': 'TF-IDF + K-means', 'BGE-M3+KMeans (proposed)': 'BGE-M3 + K-means',
             'NMF (TF-IDF)': 'NMF', 'LDA (gensim)': 'LDA'}
@@ -147,9 +147,9 @@ def fig3():
     gb.margins(y=0.08); gb.tick_params(length=3)
     save(fig, 'fig3_model_selection.png')
 
-# ═══ Figure 4: 토픽×연도 비중 히트맵 ═══
+# ═══ Figure 4: topic x year share heatmap ═══
 def fig4():
-    share = pd.read_excel(os.path.join(R, '연도별_토픽비중.xlsx'), index_col=0)
+    share = pd.read_excel(os.path.join(R, 'topic_share_by_year.xlsx'), index_col=0)
     share.columns = share.columns.astype(int)
     M = share.T.reindex(range(5)).values  # topic × year
     fig, ax = plt.subplots(figsize=(6.2, 2.5), layout='constrained')
@@ -172,7 +172,7 @@ def fig4():
     cb.outline.set_linewidth(0.6)
     save(fig, 'fig4_topic_year_heatmap.png')
 
-# ═══ Figure 5: (a) 분기별 토픽 비중 + (b) GLM OR forest ═══
+# ═══ Figure 5: (a) quarterly topic shares + (b) GLM OR forest ═══
 def fig5():
     df = load_alloc()
     glm = pd.read_excel(os.path.join(R, 'GLM_taxonomy_macro.xlsx'))
@@ -182,12 +182,12 @@ def fig5():
     cols = {0: OI['gray'], 1: OI['purple'], 2: OI['blue'], 3: OI['vermillion'], 4: OI['green']}
     fig, (a, b) = plt.subplots(1, 2, figsize=(7.0, 3.0), layout='constrained',
                                gridspec_kw={'width_ratios': [1.45, 1]})
-    # (a) 분기 추이
+    # (a) quarterly trend
     a.grid(**GRID)
     for t in range(5):
         y = qs[t]
         a.plot(y.index, y.values, lw=1.5, color=cols[t], zorder=3)
-    # 직접 라벨 (겹침 방지 수동 오프셋)
+    # Direct labels (manual offsets to avoid overlap)
     endx = qs.index[-1]
     offs = {0: 0, 1: 0, 2: 0, 3: 0.012, 4: -0.012}
     for t in range(5):
@@ -219,11 +219,11 @@ def fig5():
     b.tick_params(length=3)
     save(fig, 'fig5_topic_trends_forest.png')
 
-# ═══ Figure 6: (a) 도메인 OR forest + (b) 분기 비중 small multiples ═══
+# ═══ Figure 6: (a) domain OR forest + (b) quarterly share small multiples ═══
 def fig6():
-    dom = pd.read_excel(os.path.join(R, '도메인_GLM_taxonomy.xlsx'))
+    dom = pd.read_excel(os.path.join(R, 'domain_GLM_taxonomy.xlsx'))
     dom = dom[dom.domain != 'General'].sort_values('OR_per_year')
-    tag = pd.read_excel(os.path.join(R, '도메인_태깅.xlsx'))
+    tag = pd.read_excel(os.path.join(R, 'domain_tagging.xlsx'))
     raw = pd.read_excel(RAW)
     raw['created_dt'] = pd.to_datetime(raw['created_at']).dt.tz_localize(None)
     tag = tag.merge(raw[['full_name', 'created_dt']], on='full_name')
@@ -247,7 +247,7 @@ def fig6():
     a.xaxis.set_minor_formatter(ticker.NullFormatter())
     a.xaxis.set_minor_locator(ticker.NullLocator())
     a.tick_params(length=3)
-    # (b) small multiples: 분기 비중 (선정 6개 도메인)
+    # (b) small multiples: quarterly shares (6 selected domains)
     picks = ['SoftwareDev/Coding', 'Web/Browser automation', 'Gaming',
              'Robotics/Embodied', 'Finance/Trading', 'Data/Analytics']
     colmap = {'SoftwareDev/Coding': OI['vermillion'], 'Web/Browser automation': OI['orange'],
@@ -285,19 +285,19 @@ def fig6():
     save(fig, 'fig6_domain_trends.png')
 
 
-# ═══ Figure 0: 연구 설계 개요도 (Method 서두) ═══
+# ═══ Figure 0: study design overview (beginning of the Method section) ═══
 def fig0():
     from matplotlib.patches import FancyBboxPatch, FancyArrowPatch
     fig, ax = plt.subplots(figsize=(7.6, 3.7), layout='constrained')
     ax.set_xlim(0, 100); ax.set_ylim(15, 101); ax.axis('off')
     C_DATA, C_TOPIC, C_TREND, C_VAL = '#EAF1F7', '#EAF4EE', '#FBF0E6', '#F4F4F4'
     EDGE = '#6B7B8C'
-    LH = 3.0    # 본문 1행 높이(데이터 단위)
-    TH = 2.6    # 제목 높이
-    GAP = 1.2   # 제목-본문 간격
+    LH = 3.0    # height of one body-text line (data units)
+    TH = 2.6    # title height
+    GAP = 1.2   # gap between title and body text
 
     def box(x, y, w, h, title, lines, fc, fs=8.0, tfs=9.0):
-        """텍스트 블록(제목+본문)을 상자 안에서 수직 중앙 정렬 → 상자 하단 공백 제거"""
+        """Vertically center the text block (title + body) inside the box -> removes empty space at the bottom of the box"""
         ax.add_patch(FancyBboxPatch((x, y), w, h, boxstyle='round,pad=0.6,rounding_size=1.2',
                                     fc=fc, ec=EDGE, lw=0.8, zorder=2))
         total = TH + GAP + LH * len(lines)
@@ -316,8 +316,8 @@ def fig0():
                 color='#FFFFFF', zorder=4,
                 bbox=dict(boxstyle='round,pad=0.28', fc='#4878A8', ec='none'))
 
-    # 1행: 수집 → 코퍼스 → 감사
-    # 상자 높이 = 4행 텍스트 블록에 여백 최소로 맞춤(H4), 행 간격 7
+    # Row 1: collection → corpus → audit
+    # Box height = fitted to a 4-line text block with minimal margin (H4), row spacing 7
     H4 = TH + GAP + LH * 4 + 2.4
     r1, r2, r3 = 98 - H4, 98 - H4 - 7 - H4, 98 - 2 * (H4 + 7) - H4
     box(2, r1, 27, H4, 'Data collection',
@@ -332,7 +332,7 @@ def fig0():
     m1 = r1 + H4 / 2
     arrow(29, m1, 35.4, m1); arrow(61, m1, 67.4, m1)
 
-    # 2행: 토픽 축 + 베이스라인
+    # Row 2: topic axis + baselines
     box(2, r2, 34, H4, 'Semantic clustering (technology axis)',
         ['BGE-M3 embeddings + K-means', 'k = 2–30: silhouette + stability rule → k=5',
          'k=12 exploratory (seed ARI 0.63)', 'LLM labels + Self-Refine (measured)'], C_TOPIC)
@@ -347,9 +347,9 @@ def fig0():
     arrow(48.5, r1 - 0.6, 54, t2 + 0.6)   # corpus -> baselines
     arrow(48.5, r1 - 0.6, 85, t2 + 0.6)   # corpus -> domain
     m2 = r2 + H4 / 2
-    arrow(36.6, m2, 40.4, m2, style='<|-|>')  # topic <-> baselines 비교
+    arrow(36.6, m2, 40.4, m2, style='<|-|>')  # topic <-> baselines comparison
 
-    # 3행: 추이 분석 → 민감도
+    # Row 3: trend analysis → sensitivity
     box(2, r3, 46, H4, 'Trend, functional form, change points',
         ['binomial GLM: OR/yr, 95% CI, BH-FDR', 'spline / segmented / window / quarterly specs',
          'PELT on monthly series,', '30-configuration sensitivity grid'], C_TREND)
@@ -358,12 +358,12 @@ def fig0():
          'active-24-month restriction; cohort activity', 'Self-Refine pre/post ablation'], C_VAL)
     t3 = r3 + H4
     arrow(19, r2 - 0.6, 19, t3 + 0.6)    # topic -> trend
-    arrow(85, r2 - 0.6, 42, t3 + 0.8)    # domain -> trend (도메인도 동일 GLM/taxonomy)
+    arrow(85, r2 - 0.6, 42, t3 + 0.8)    # domain -> trend (domains use the same GLM/taxonomy)
     m3 = r3 + H4 / 2
     arrow(48, m3, 54.4, m3)  # trend -> robustness
     ax.set_ylim(r3 - 2, 101)
 
-    # RQ 태그
+    # RQ tags
     rq(6, t2 + 0.3, 'RQ1'); rq(45, t2 + 0.3, 'RQ3'); rq(76, t2 + 0.3, 'RQ4'); rq(6, t3 + 0.3, 'RQ2')
     save(fig, 'fig0_study_design.png')
 

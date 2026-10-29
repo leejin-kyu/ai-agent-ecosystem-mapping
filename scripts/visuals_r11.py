@@ -13,8 +13,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 if os.path.exists(os.path.join(HERE, 'visuals_jss_r5.py')):        # replication repository: scripts/
     REPO = os.path.dirname(HERE); V5 = os.path.join(HERE, 'visuals_jss_r5.py'); RAW = os.path.join(REPO, 'data', 'github_ai_agent_raw_v2.xlsx')
     XL = os.path.join(REPO, 'results', 'R11', 'R11_reanalysis.xlsx'); OUT = os.path.join(REPO, 'figures', 'R11')
-else:                                                              # authors' working folder: 92_…/01_재분석/
-    ROOT = os.path.dirname(os.path.dirname(HERE)); V5 = os.path.join(ROOT, '20_분석코드', 'visuals_jss_r5.py'); RAW = os.path.join(ROOT, '10_데이터수집', 'github_ai_agent_raw_v2.xlsx')
+else:                                                              # authors' working folder: 92_…/01_reanalysis/
+    ROOT = os.path.dirname(os.path.dirname(HERE)); V5 = os.path.join(ROOT, '20_analysis_code', 'visuals_jss_r5.py'); RAW = os.path.join(ROOT, '10_data_collection', 'github_ai_agent_raw_v2.xlsx')
     XL = os.path.join(HERE, 'R11_reanalysis.xlsx'); OUT = os.path.join(HERE, 'figures_R11')
 spec = importlib.util.spec_from_file_location('v5', V5); v5 = importlib.util.module_from_spec(spec); spec.loader.exec_module(v5)
 plt, ticker, OI = v5.plt, v5.ticker, v5.OI
@@ -61,8 +61,8 @@ def fig0():
 def fig6():
     P8 = pd.read_excel(XL, sheet_name='P8_FDR16')
     dom = P8[~P8['series'].str.startswith('T')].sort_values('full_OR')
-    alloc = pd.read_excel(os.path.join(R, '문서_군집할당.xlsx'))
-    tag = pd.read_excel(os.path.join(R, '도메인_태깅.xlsx')); tag = tag[tag['full_name'].isin(alloc['full_name'])]
+    alloc = pd.read_excel(os.path.join(R, 'document_cluster_assignments.xlsx'))
+    tag = pd.read_excel(os.path.join(R, 'domain_tagging.xlsx')); tag = tag[tag['full_name'].isin(alloc['full_name'])]
     raw = pd.read_excel(RAW); raw['created_dt'] = pd.to_datetime(raw['created_at']).dt.tz_localize(None)
     tag = tag.merge(raw[['full_name', 'created_dt']], on='full_name'); assert len(tag) == 9601
     fig, (a, b) = plt.subplots(1, 2, figsize=(7.0, 3.4), layout='constrained', gridspec_kw={'width_ratios': [1, 1.15]})

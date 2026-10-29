@@ -1,5 +1,5 @@
-# 응용분야(도메인) 축 분석 — 사전 태깅(+General) → 분야별 Binomial GLM(OR/yr, CI, BH-FDR)+Emergent
-# → 분기 추이 그림 → 층화표본 300 LLM 이중태깅 검증(일치율·κ)
+# Application-domain axis analysis: keyword tagging (+General) -> per-domain Binomial GLM (OR/yr, CI, BH-FDR) + Emergent
+# -> quarterly trend figure -> validation by dual LLM tagging of a stratified sample of 300 (agreement, kappa)
 import os, re, json
 import numpy as np
 import pandas as pd
@@ -13,7 +13,7 @@ REPO = os.path.dirname(BASE)
 if os.path.isdir(os.path.join(REPO, 'results')):   # replication repository layout (data/, results/)
     R = os.path.join(REPO, 'results'); RAW = os.path.join(REPO, 'data', 'github_ai_agent_raw_v2.xlsx')
 else:                                              # original working layout
-    R = os.path.join(BASE, '결과물_github_v2'); RAW = os.path.join(BASE, '데이터', 'github_ai_agent_raw_v2.xlsx')
+    R = os.path.join(BASE, 'results_github_v2'); RAW = os.path.join(BASE, 'data', 'github_ai_agent_raw_v2.xlsx')
 plt.rcParams['font.family'] = 'Malgun Gothic'
 plt.rcParams['axes.unicode_minus'] = False
 def log(m): print(m, flush=True)
@@ -41,10 +41,10 @@ txt = (df['full_name'].fillna('') + ' ' + df['description'].fillna('') + ' ' + d
 for d, pat in DOM.items():
     df[d] = txt.str.contains(pat, regex=True)
 df['General'] = ~df[DOM_NAMES].any(axis=1)
-log('태깅 완료: ' + ', '.join(f'{d}={int(df[d].sum())}' for d in DOM_NAMES + ['General']))
-df[['full_name', 'year'] + DOM_NAMES + ['General']].to_excel(os.path.join(R, '도메인_태깅.xlsx'), index=False)
+log('Tagging done: ' + ', '.join(f'{d}={int(df[d].sum())}' for d in DOM_NAMES + ['General']))
+df[['full_name', 'year'] + DOM_NAMES + ['General']].to_excel(os.path.join(R, 'domain_tagging.xlsx'), index=False)
 
-# ── GLM(분야별 binary) + BH-FDR + Emergent ──
+# ── GLM (binary per domain) + BH-FDR + Emergent ──
 import statsmodels.api as sm
 from statsmodels.stats.multitest import multipletests
 years = np.arange(2016, 2026)
@@ -71,10 +71,10 @@ def judge(r):
 t['taxonomy'] = t.apply(judge, axis=1)
 t['p'] = t['p'].round(6); t['q_BH'] = t['q_BH'].round(6)
 t = t.sort_values('n', ascending=False)
-t.to_excel(os.path.join(R, '도메인_GLM_taxonomy.xlsx'), index=False)
+t.to_excel(os.path.join(R, 'domain_GLM_taxonomy.xlsx'), index=False)
 log(t.to_string())
 
-# ── 분기 추이 그림 (2023~2025, 분야별 비중) ──
+# ── Quarterly trend figure (2023-2025, share per domain) ──
 q = df[df['created_dt'] >= '2022-01-01'].set_index('created_dt')
 qidx = q.resample('QS').size()
 fig, ax = plt.subplots(figsize=(9.5, 5.5))
@@ -87,10 +87,10 @@ for d, c in zip(top, colors):
 ax.set_title('Figure 6. Quarterly application-domain shares, 2022–2025 (top-8 domains)')
 ax.set_ylabel('Share of quarterly creations'); ax.spines[['top', 'right']].set_visible(False)
 ax.set_xlim(pd.Timestamp('2022-01-01'), pd.Timestamp('2027-03-01'))
-fig.tight_layout(); fig.savefig(os.path.join(R, '그림6_도메인_분기추이.png'), dpi=200); plt.close(fig)
-log('그림6 저장')
+fig.tight_layout(); fig.savefig(os.path.join(R, 'fig6_domain_quarterly_trends.png'), dpi=200); plt.close(fig)
+log('Figure 6 saved')
 
-# ── 검증: 층화표본 300 LLM 이중태깅 (스킬 원칙 9) ──
+# ── Validation: dual LLM tagging of a stratified sample of 300 (skill principle 9) ──
 def ollama_gen(model, prompt):
     req = urllib.request.Request('http://localhost:11434/api/generate',
         data=json.dumps({'model': model, 'prompt': prompt, 'stream': False,
@@ -116,7 +116,7 @@ for d in DOM_NAMES:
     strata.append(g.sample(min(18, len(g)), random_state=rs))
 strata.append(df[df['General']].sample(102, random_state=rs))
 smp = pd.concat(strata).drop_duplicates('full_name').reset_index(drop=True)
-log(f'검증표본: {len(smp)}')
+log(f'Validation sample: {len(smp)}')
 
 def norm(resp):
     r = resp.lower()
@@ -139,7 +139,7 @@ def lex_match(row, llm_col):
 smp['agree_models'] = smp['llm_qwen'] == smp['llm_llama']
 smp['lex_vs_qwen'] = smp.apply(lambda r: lex_match(r, 'llm_qwen'), axis=1)
 smp['lex_vs_llama'] = smp.apply(lambda r: lex_match(r, 'llm_llama'), axis=1)
-# 합의 서브셋 기준 사전 태깅 정합
+# Keyword-tagging consistency on the subset where both models agree
 cons = smp[smp['agree_models']]
 acc = cons.apply(lambda r: lex_match(r, 'llm_qwen'), axis=1).mean()
 stats = {'n': len(smp), 'model_agreement': round(smp['agree_models'].mean(), 4),
@@ -147,7 +147,7 @@ stats = {'n': len(smp), 'model_agreement': round(smp['agree_models'].mean(), 4),
          'lexicon_vs_qwen': round(smp['lex_vs_qwen'].mean(), 4),
          'lexicon_vs_llama': round(smp['lex_vs_llama'].mean(), 4)}
 log(str(stats))
-pd.DataFrame([stats]).to_excel(os.path.join(R, '도메인_태깅검증.xlsx'), index=False)
+pd.DataFrame([stats]).to_excel(os.path.join(R, 'domain_tagging_validation.xlsx'), index=False)
 smp[['full_name', 'description', 'year', 'llm_qwen', 'llm_llama'] + DOM_NAMES + ['General']].to_excel(
-    os.path.join(R, '도메인_검증표본.xlsx'), index=False)
+    os.path.join(R, 'domain_validation_sample.xlsx'), index=False)
 log('ALL DONE')

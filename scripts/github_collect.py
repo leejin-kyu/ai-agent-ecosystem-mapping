@@ -1,5 +1,5 @@
-# GitHub AI Agent 레포 수집 — 쿼리×연도 슬라이스로 1000건 캡 우회, stars>=5
-# 산출: github_ai_agent_raw.xlsx (full_name, description, topics, stars, forks, language, created, pushed, license)
+# GitHub AI Agent repository collection - query x year slices to work around the 1,000-result cap, stars>=5
+# Output: github_ai_agent_raw.xlsx (full_name, description, topics, stars, forks, language, created, pushed, license)
 import subprocess, json, time, sys, os
 import pandas as pd
 
@@ -82,7 +82,7 @@ for q in QUERIES:
             page += 1
             time.sleep(2.2)  # search 30/min
         time.sleep(2.2)
-    # 중간 저장
+    # Intermediate save
     pd.DataFrame(repos.values()).to_excel(OUT, index=False)
     log(f'== query done: {q} | cumulative unique repos: {len(repos)}')
 

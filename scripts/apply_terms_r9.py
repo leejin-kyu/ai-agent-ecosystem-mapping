@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-"""R9: 제목·초록 전수 DF(선행연구 27편, 기준 ≥3편) 재검사 후 미달 용어 치환 + 본문 잔여어. 사용: python apply_terms_r9.py <tex>
-출력: 치환 로그, 초록 내용어 DF<3 잔여 목록, 본문 저빈도 복합어 상위."""
+"""R9: re-check DF of every word of the title and abstract (27 prior-work papers, threshold >= 3 papers), then replace terms below the threshold + residual terms in the body. Usage: python apply_terms_r9.py <tex>
+Output: replacement log, residual list of abstract content words with DF<3, top low-frequency compound terms in the body."""
 import re, json, os, sys
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__))); OUT = os.path.join(ROOT, '30_분석결과', '용어검토')
-docs = {k: re.sub(r'[‐-―]', '-', v.lower()) for k, v in json.load(open(os.path.join(OUT, '선행연구_전문텍스트.json'), encoding='utf-8')).items()}
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__))); OUT = os.path.join(ROOT, '30_analysis_results', 'term_review')
+docs = {k: re.sub(r'[‐-―]', '-', v.lower()) for k, v in json.load(open(os.path.join(OUT, 'prior_work_fulltext.json'), encoding='utf-8')).items()}
 def df(t):
     t = t.lower(); pats = {t, t.replace('-', ' '), t.replace(' ', '-')}
     if not t.endswith('s'): pats |= {p + 's' for p in list(pats)}
